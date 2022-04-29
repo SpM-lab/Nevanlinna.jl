@@ -1,1 +1,0 @@
-../mpn/x86_64/coreisbr/gcd_11.asm

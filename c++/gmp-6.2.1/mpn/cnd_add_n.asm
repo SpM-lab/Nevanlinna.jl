@@ -1,1 +1,0 @@
-../mpn/x86_64/coreisbr/cnd_add_n.asm

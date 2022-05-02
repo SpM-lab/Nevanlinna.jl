@@ -1,1 +1,1 @@
-green.dat 22 out_spec.dat
+in_green.dat 	 14 	out_spec.dat

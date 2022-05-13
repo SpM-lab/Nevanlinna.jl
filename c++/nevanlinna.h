@@ -37,6 +37,7 @@ public:
         freq_.resize(N_imag_);
         nev_real freq, re, im;
         nev_complex I {0., 1.};
+        nev_complex One {1., 0.};
         for (int i = 0; i < N_imag_; i++) {
             ifs >> freq >> re >> im;
             nev_complex val = nev_complex{-re, -im}; //minus signs to transform G to NG

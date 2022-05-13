@@ -7,7 +7,7 @@ int main (int argc, char * argv[]) {
     //prompt user for input parameters
     std::cin >> ifile >> imag_num >> ofile;
     //set calculation precision
-    mpf_set_default_prec(128);
+    mpf_set_default_prec(256);
     //begin evaluation
     Schur<mpf_class> NG(ifile, imag_num, ofile);
     NG.evaluation();

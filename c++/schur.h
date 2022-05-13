@@ -30,6 +30,7 @@ Schur<T>::Schur (std::string ifile, int imag_num, std::string ofile) : imag(ifil
     //fill the Pick matrix
     nev_complex_matrix Pick (M, M);
     nev_complex I {0., 1.};
+    nev_complex One {1., 0.};
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < M; j++) {
             nev_complex freq_i = (imag.freq()[i] - I) / (imag.freq()[i] + I);

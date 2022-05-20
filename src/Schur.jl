@@ -105,7 +105,7 @@ function calc_functional(reals::RealDomainData, abcd::Array{Complex{BigFloat},3}
 
     second_der = second_der*2
 
-    lambda::Float64 = 1e-6
+    lambda::Float64 = 1e-5
     func::Complex{Float64} = abs(1-tot_int)^2 + lambda*second_der
 
 end

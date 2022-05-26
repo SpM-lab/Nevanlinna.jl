@@ -42,75 +42,46 @@ function calc_abcd(imag::ImagDomainData, reals::RealDomainData, phis::Vector{Com
     return abcd
 end
 
-function calc_functional(reals::RealDomainData, abcd::Array{Complex{BigFloat},3}, H::Int64, ab_coeff::Vector{Float64} )
-#=
-    function calc_g(i)
-        z::Complex{BigFloat} = reals.freq[i]
-        param::Complex{BigFloat} = 0.0+0.0*im
-        for k in 1:H
-            param += ab_coeff[k]*hardy_basis(z,k-1)
-            param += ab_coeff[k+H]*conj(hardy_basis(z,k-1))
-        end
-        
-        theta = (abcd[1,1,i]*param + abcd[1,2,i]) / (abcd[2,1,i]*param + abcd[2,2,i])
-        green = im * (one(BigFloat) + theta) / (one(BigFloat) - theta)
+function calc_hardy_matrix(reals::RealDomainData, H::Int64)::Array{Complex{BigFloat}, 2}
+    hardy_matrix = Array{Complex{BigFloat}}(undef, reals.N_real, 2*H)
+    for k in 1:H
+        hardy_matrix[:,k]   .=      hardy_basis.(reals.freq,k-1)
+        hardy_matrix[:,k+H] .= conj(hardy_basis.(reals.freq,k-1))
     end
+    return hardy_matrix
+end
 
-    A = collect(imag(calc_g(i))/pi for i in 1:reals.N_real)
+function calc_functional(reals::RealDomainData, abcd::Array{Complex{BigFloat},3}, H::Int64, ab_coeff::Vector{Float64}, hardy_matrix::Array{Complex{BigFloat},2})::Float64
+    param = hardy_matrix*ab_coeff
 
-    lambda::Float64 = 1e-6
-    tot_int::Float64 = 0.0
-    second_square::Float64 = 0.0
-    for i in 1:reals.N_real
-        tot_int += A[i]*((reals.omega_max-reals.omega_min)/reals.N_real)
-        second_der_i = (A[mod1(i+1,reals.N_real)] + A[mod1(i-1,reals.N_real)] - 2*A[i])*((reals.omega_max-reals.omega_min)/reals.N_real)^(-2)
-        second_square += (second_der_i)^2*((reals.omega_max-reals.omega_min)/reals.N_real)
-    end
-    
-    func::Float64 = (1-tot_int) + lambda*second_square
-=#
+    theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])
+    green = im * (one(BigFloat) .+ theta) ./ (one(BigFloat) .- theta)
+    A = Float64.(imag(green)./pi)
 
-
-    function calc_g(i)
-        z::Complex{BigFloat} = reals.freq[i]
-        param::Complex{BigFloat} = 0.0+0.0*im
-        for k in 1:H
-            param += ab_coeff[k]*Nevanlinna.hardy_basis(z,k-1)
-            param += ab_coeff[k+H]*conj(Nevanlinna.hardy_basis(z,k-1))
-        end
-
-        theta = (abcd[1,1,i]*param + abcd[1,2,i]) / (abcd[2,1,i]*param + abcd[2,2,i])
-        green = im * (one(BigFloat) + theta) / (one(BigFloat) - theta)
-    end
-
-    A = collect(imag(calc_g(i))/pi for i in 1:reals.N_real)
-
-    second_square = 0.0
     tot_int = sum(A)*((2.0*reals.omega_max)/reals.N_real)
 
+    #本来はこうすべきだが、以下のようにしても結果は変わらない
     #prefft_spec = Array{Complex{Float64}}(undef, reals.N_real)
     #for i in 1:Int64(reals.N_real/2)
     #    prefft_spec[i] = Float64(A[Int64(reals.N_real/2)+i])
     #    prefft_spec[Int64(reals.N_real/2)+i] = Float64(A[i])
     #end
-
     #fft_spec = bfft(prefft_spec)*2.0*reals.omega_max/reals.N_real
-    fft_spec = bfft(Float64.(A))*2.0*reals.omega_max/reals.N_real
+ 
+    fft_spec = bfft(A)*2.0*reals.omega_max/reals.N_real
 
-    function calc_second(i)
-        (2*pi*(i-1)/(2.0*reals.omega_max))^4 * abs(fft_spec[i])^2 /(2.0*reals.omega_max)
-    end
+    preder_spec = fft_spec[1:Int64(reals.N_real/2)]
+    t_vec = 2*pi*Vector(0:Int64(reals.N_real/2)-1)/(2.0*reals.omega_max)
 
-    second_der = sum(collect(calc_second(i) for i in 2:Int64(reals.N_real/2)))
-
-    second_der = second_der*2
+    second_der = 2*sum(t_vec.^4 .* abs.(preder_spec).^2 /(2*reals.omega_max))
 
     lambda::Float64 = 1e-5
-    func::Complex{Float64} = abs(1-tot_int)^2 + lambda*second_der
+    func::Float64 = abs(1-tot_int)^2 + lambda*second_der
 
+    return func
 end
 
-function evaluation(imag::ImagDomainData, reals::RealDomainData, phis::Vector{Complex{BigFloat}}, H::Int64, ab_coeff::Vector{Float64} )
+function evaluation(imag::ImagDomainData, reals::RealDomainData, phis::Vector{Complex{BigFloat}}, H::Int64, ab_coeff::Vector{Float64})
     for i in 1:reals.N_real
         result = Matrix{Complex{BigFloat}}(I, 2, 2) 
         z::Complex{BigFloat} = reals.freq[i]
@@ -132,4 +103,12 @@ function evaluation(imag::ImagDomainData, reals::RealDomainData, phis::Vector{Co
         theta = (result[1,1]*param + result[1,2]) / (result[2,1]*param + result[2,2])
         reals.val[i] = im * (one(BigFloat) + theta) / (one(BigFloat) - theta)
     end
+end
+
+function evaluation(imag::ImagDomainData, reals::RealDomainData, abcd::Array{Complex{BigFloat},3}, H::Int64, ab_coeff::Vector{Float64}, hardy_matrix::Array{Complex{BigFloat},2})
+    param = hardy_matrix*ab_coeff
+
+    theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])
+
+    reals.val .= im * (one(BigFloat) .+ theta) ./ (one(BigFloat) .- theta)
 end

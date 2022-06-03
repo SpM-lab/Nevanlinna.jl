@@ -48,7 +48,7 @@ N_imag    =  12
 N_real    =  6000
 omega_max =  10.0
 eta       =  0.001
-H         =  15
+H         =  10
 ab_coeff = zeros(Float64, 2*H)
 
 imaginary = Nevanlinna.ImagDomainData(N_imag, test_smpl, test_gw)
@@ -69,7 +69,9 @@ end
 
 @time res = optimize(f, j, ab_coeff, BFGS(), Optim.Options(iterations = 100000,
                                                           show_trace = true))
-#@time res = optimize(f, j, ab_coeff, ConjugateGradient())
+
+#@time res = optimize(f, j, ab_coeff, ConjugateGradient(), Optim.Options(iterations = 100000,
+#                                                          show_trace = true))
 
 println(res)
 

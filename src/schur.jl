@@ -1,4 +1,4 @@
-function Nevanlinna_Schur(N::Int64, 
+function Nevanlinna_Schur(N_imag::Int64, 
                     omega::Array{BigFloat,1}, 
                     green::Array{Complex{BigFloat},1},
                     N_real::Int64,
@@ -10,8 +10,6 @@ function Nevanlinna_Schur(N::Int64,
         error("N_real must be even number!")
     end
     
-    N_imag::Int64 = calc_opt_N_imag(N, omega, green)
-
     imags = ImagDomainData(N_imag, omega, green)
     reals     = RealDomainData(N_real, omega_max, eta)
 
@@ -36,6 +34,19 @@ function Nevanlinna_Schur(N::Int64,
                         Optim.Options(iterations = 100000,
                                       show_trace = false))
     end
+
+    #=
+    if verbose
+        res = optimize(functional, jacobian, ab_coeff, ConjugateGradient(), 
+                        Optim.Options(iterations = 100000,
+                                      show_trace = true))
+    else 
+        res = optimize(functional, jacobian, ab_coeff, ConjugateGradient(), 
+                        Optim.Options(iterations = 100000,
+                                      show_trace = false))
+    end
+    =#
+ 
     
     if  !(Optim.converged(res))
         error("Faild to optimize!")

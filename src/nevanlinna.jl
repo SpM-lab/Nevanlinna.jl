@@ -86,6 +86,15 @@ function evaluation(reals::RealDomainData,
                     hardy_matrix::Array{Complex{BigFloat},2})
     param = hardy_matrix*ab_coeff
 
+    max_theta = findmax(abs.(param))[1]
+    if max_theta <= 1.0
+        println("max_theta=",max_theta)
+        println("hardy optimization was success.")
+    else
+        println("max_theta=",max_theta)
+        println("hardy optimization was failure.")
+    end
+
     theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])
 
     reals.val .= im * (one(BigFloat) .+ theta) ./ (one(BigFloat) .- theta)

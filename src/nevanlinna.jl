@@ -48,8 +48,10 @@ function calc_hardy_matrix(reals::RealDomainData,
                            H::Int64)::Array{Complex{BigFloat}, 2}
     hardy_matrix = Array{Complex{BigFloat}}(undef, reals.N_real, 2*H)
     for k in 1:H
-        hardy_matrix[:,k]   .=      hardy_basis.(reals.freq,k-1)
-        hardy_matrix[:,k+H] .= conj(hardy_basis.(reals.freq,k-1))
+        #hardy_matrix[:,k]   .=      hardy_basis.(reals.freq,k-1)
+        #hardy_matrix[:,k+H] .= conj(hardy_basis.(reals.freq,k-1))
+        hardy_matrix[:,2*k-1] .=      hardy_basis.(reals.freq,k-1)
+        hardy_matrix[:,2*k]   .= conj(hardy_basis.(reals.freq,k-1))
     end
     return hardy_matrix
 end

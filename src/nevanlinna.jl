@@ -77,7 +77,16 @@ function calc_functional(reals::RealDomainData,
     second_der = 2*sum(t_vec.^4 .* abs.(preder_spec).^2 /(2*reals.omega_max))
 
     lambda::Float64 = 1e-5
-    func::Float64 = abs(1-tot_int)^2 + lambda*second_der
+    #func::Float64 = abs(1-tot_int)^2 + lambda*second_der
+
+
+    max_theta = findmax(abs.(param))[1]
+    func::Float64 = 0.0
+    if max_theta > (1 - 1e-7)
+        func = abs(1-tot_int)^2 + lambda*second_der + 1e-4
+    else
+        func = abs(1-tot_int)^2 + lambda*second_der
+    end
 
     return func
 end

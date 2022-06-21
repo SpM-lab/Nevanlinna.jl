@@ -4,7 +4,6 @@ authors = ["Hiroshi Shinaoka <h.shinaoka@gmail.com> and contributors"]
 version = "0.1.0"
 
 [deps]
-FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MultiFloats = "bdf0d083-296b-4888-a5b6-7498122e68a5"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"

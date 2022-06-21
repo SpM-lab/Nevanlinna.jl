@@ -11,7 +11,7 @@ function Nevanlinna_Schur(N_imag::Int64,
     end
     
     imags = ImagDomainData(N_imag, omega, green)
-    reals = RealDomainData(N_real, omega_max, eta, T)
+    reals = RealDomainData(N_real, omega_max, eta, T=T)
 
     phis = calc_phis(imags)
     abcd = calc_abcd(imags, reals, phis)

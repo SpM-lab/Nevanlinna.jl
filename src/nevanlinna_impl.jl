@@ -60,13 +60,16 @@ function calc_functional(reals::RealDomainData{T},
                          abcd::Array{Complex{T},3}, 
                          H::Int64, 
                          ab_coeff::Vector{Complex{S}}, 
-                         hardy_matrix::Array{Complex{T},2})::Float64 where {S<:Real, T<:Real}
+                         hardy_matrix::Array{Complex{T},2};
+                         lambda::Float64 = 1e-5
+                         )::Float64 where {S<:Real, T<:Real}
     param = hardy_matrix*ab_coeff
 
     theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])
     green = im * (one(T) .+ theta) ./ (one(T) .- theta)
     A = Float64.(imag(green)./pi)
 
+    """
     tot_int = sum(A)*((2.0*reals.omega_max)/reals.N_real)
 
     fft_spec = bfft(A)*2.0*reals.omega_max/reals.N_real
@@ -75,14 +78,14 @@ function calc_functional(reals::RealDomainData{T},
     t_vec = 2*pi*Vector(0:Int64(reals.N_real/2)-1)/(2.0*reals.omega_max)
 
     second_der = 2*sum(t_vec.^4 .* abs.(preder_spec).^2 /(2*reals.omega_max))
-
-    lambda::Float64 = 1e-5
-    #func::Float64 = abs(1-tot_int)^2 + lambda*second_der
-
+    """
+    tot_int = integrate(reals.freq, A)
+    second_der = integrate_squared_second_deriv(reals.freq, A) 
 
     max_theta = findmax(abs.(param))[1]
     func::Float64 = 0.0
     if max_theta > (1 - 1e-7)
+        # TODO: make the penalty differentiable
         func = abs(1-tot_int)^2 + lambda*second_der + 1e-4
     else
         func = abs(1-tot_int)^2 + lambda*second_der

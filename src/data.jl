@@ -53,24 +53,35 @@ end
 
 function RealDomainData(N_real   ::Int64,
                         omega_max::Float64,
-                        eta      ::Float64,
-                        T::Type=BigFloat
+                        eta      ::Float64
+                        ;
+                        T::Type=BigFloat,
+                        small_omega::Float64 = 1e-5,
+                        mesh::Symbol=:linear
                         )::RealDomainData{T}
+    if mesh === :linear
+        val = Array{Complex{T}}(collect(LinRange(-omega_max, omega_max, N_real)))
+        freq = val .+ eta * im
+        return RealDomainData(N_real, omega_max, eta, freq, val)
+    elseif mesh === :log
+        half_N = N_real ÷ 2
+        mesh = exp.(LinRange(log.(small_omega), log.(omega_max), half_N))
+        val = Array{Complex{T}}([reverse(-mesh); mesh])
+        freq = val .+ eta * im
+        return RealDomainData(N_real, omega_max, eta, freq, val)
+    else
+        throw(ArgumentError("Invalid mesh"))
+    end
+    
+    """
     val  = Array{Complex{T}}(undef, N_real) 
     freq = Array{Complex{T}}(undef, N_real) 
-    
-    #TODO: remove parse
-    #inter::T = parse(T, string((2.0*omega_max) / (N_real-1)))
-    #temp ::T = parse(T, string(-omega_max))
     inter::T = (2.0*omega_max) / (N_real-1)
     temp ::T = -omega_max
-    
-    #freq[1] = parse(T, string(-omega_max)) + parse(T, string(eta))*im
     freq[1] = -omega_max + eta*im
     for i in 2:N_real
         temp += inter
         freq[i] = temp + eta*im
     end
-    
-    return RealDomainData(N_real, omega_max, eta, freq, val)
+    """
 end

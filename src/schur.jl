@@ -26,9 +26,6 @@ function Nevanlinna_Schur(N_imag::Int64,
         J .= gradient(functional, x)[1] 
     end
     J = similar(ab_coeff)
-    #println("debug", functional(ab_coeff))
-    #println("debug_j", jacobian(J, ab_coeff))
-
    
     if verbose
         res = optimize(functional, jacobian, ab_coeff, BFGS(), 

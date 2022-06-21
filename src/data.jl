@@ -60,13 +60,16 @@ function RealDomainData(N_real   ::Int64,
     freq = Array{Complex{T}}(undef, N_real) 
     
     #TODO: remove parse
-    inter::T = parse(T, string((2.0*omega_max) / (N_real-1)))
-    temp ::T = parse(T, string(-omega_max))
+    #inter::T = parse(T, string((2.0*omega_max) / (N_real-1)))
+    #temp ::T = parse(T, string(-omega_max))
+    inter::T = (2.0*omega_max) / (N_real-1)
+    temp ::T = -omega_max
     
-    freq[1] = parse(T, string(-omega_max)) + parse(T, string(eta))*im
+    #freq[1] = parse(T, string(-omega_max)) + parse(T, string(eta))*im
+    freq[1] = -omega_max + eta*im
     for i in 2:N_real
         temp += inter
-        freq[i] = temp + parse(T, string(eta))*im
+        freq[i] = temp + eta*im
     end
     
     return RealDomainData(N_real, omega_max, eta, freq, val)

@@ -59,8 +59,8 @@ end
 function calc_functional(reals::RealDomainData{T}, 
                          abcd::Array{Complex{T},3}, 
                          H::Int64, 
-                         ab_coeff::Vector{Complex{T}}, 
-                         hardy_matrix::Array{Complex{T},2})::Float64 where {T<:Real}
+                         ab_coeff::Vector{Complex{S}}, 
+                         hardy_matrix::Array{Complex{T},2})::Float64 where {S<:Real, T<:Real}
     param = hardy_matrix*ab_coeff
 
     theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])
@@ -93,8 +93,8 @@ end
 
 function evaluation(reals::RealDomainData{T}, 
                     abcd::Array{Complex{T},3}, 
-                    H::Int64, ab_coeff::Vector{Complex{T}}, 
-                    hardy_matrix::Array{Complex{T},2}) where {T<:Real}
+                    H::Int64, ab_coeff::Vector{Complex{S}}, 
+                    hardy_matrix::Array{Complex{T},2}) where {S<:Real, T<:Real}
     param = hardy_matrix*ab_coeff
 
     max_theta = findmax(abs.(param))[1]

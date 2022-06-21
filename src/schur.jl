@@ -11,21 +11,21 @@ function Nevanlinna_Schur(N_imag::Int64,
     end
     
     imags = ImagDomainData(N_imag, omega, green)
-    reals     = RealDomainData(N_real, omega_max, eta, T)
+    reals = RealDomainData(N_real, omega_max, eta, T)
 
     phis = calc_phis(imags)
     abcd = calc_abcd(imags, reals, phis)
     hardy_matrix = calc_hardy_matrix(reals, H)
     
-    ab_coeff  = zeros(Complex{T}, 2*H) 
+    ab_coeff  = zeros(ComplexF64, 2*H) 
     
-    functional = x->Nevanlinna.calc_functional(reals, abcd, H, x, hardy_matrix)
+    function functional(x::Vector{ComplexF64})::Float64
+        return Nevanlinna.calc_functional(reals, abcd, H, x, hardy_matrix)
+    end
     
-    function jacobian(J::Vector, x)
-        @assert length(J) == length(x)
+    function jacobian(J::Vector{ComplexF64}, x::Vector{ComplexF64})
         J .= gradient(functional, x)[1] 
     end
-    J = similar(ab_coeff)
    
     if verbose
         res = optimize(functional, jacobian, ab_coeff, BFGS(), 

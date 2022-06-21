@@ -22,11 +22,12 @@ function Nevanlinna_Schur(N_imag::Int64,
     functional = x->Nevanlinna.calc_functional(reals, abcd, H, x, hardy_matrix)
     
     function jacobian(J::Vector, x)
+        @assert length(J) == length(x)
         J .= gradient(functional, x)[1] 
     end
     J = similar(ab_coeff)
-    println("debug", functional(ab_coeff))
-    println("debug_j", jacobian(J, ab_coeff))
+    #println("debug", functional(ab_coeff))
+    #println("debug_j", jacobian(J, ab_coeff))
 
    
     if verbose

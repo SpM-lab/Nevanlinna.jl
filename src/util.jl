@@ -15,7 +15,7 @@ function second_deriv(x::AbstractVector, y::AbstractVector)
     y_mid = view(y, 2:(N-1))
     y_backward = view(y, 1:(N-2))
 
-    n = dx_forward .* y_forward + dx_backward .* y_backward - (dx_forward + dx_backward) .* y_mid
+    n = dx_backward .* y_forward + dx_forward .* y_backward - (dx_forward + dx_backward) .* y_mid
     d = (dx_forward.^2) .* dx_backward + (dx_backward.^2) .* dx_forward
     return 2 .* n ./ d
 end

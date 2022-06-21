@@ -3,9 +3,12 @@
     # f''(x) = 2
     xmax = 3
     N = 1000
-    x = collect(LinRange(0, xmax, N))
+    #x = collect(LinRange(0, xmax, N))
+    x = collect(LinRange(0, sqrt(xmax), N)) .^ 2 # Non-uniform mesh
 
     res = Nevanlinna.second_deriv(x, x.^2)
+    #println(x)
+    #println(res)
     @test all(isapprox.(res, 2.0, rtol=0, atol=1e-5))
 end
 
@@ -15,7 +18,8 @@ end
     # ∫_0^xmax (f''(x))^2 =12 xmax^3
     xmax = 3
     N = 10000
-    x = collect(LinRange(0, xmax, N))
+    #x = collect(LinRange(0, xmax, N))
+    x = collect(LinRange(0, sqrt(xmax), N)) .^ 2 # Non-uniform mesh
 
     coeff = im
 

@@ -8,7 +8,7 @@ using Zygote
 include("export.jl")
 include("data.jl")
 include("hardy.jl")
-include("nevanlinna.jl")
+include("nevanlinna_impl.jl")
 include("schur.jl")
 
 end

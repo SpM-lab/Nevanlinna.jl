@@ -46,16 +46,17 @@ end
 
 function calc_hardy_matrix(reals::RealDomainData{T}, 
                            H::Int64)::Array{Complex{T}, 2} where {T<:Real}
-    hardy_matrix = Array{Complex{T}}(undef, reals.N_real, 2*H)
+    hardy_matrix = Array{Complex{T}}(undef, reals.N_real, 4*H)
     for k in 1:H
-        #hardy_matrix[:,k]   .=      hardy_basis.(reals.freq,k-1)
-        #hardy_matrix[:,k+H] .= conj(hardy_basis.(reals.freq,k-1))
-        hardy_matrix[:,2*k-1] .=      hardy_basis.(reals.freq,k-1)
-        hardy_matrix[:,2*k]   .= conj(hardy_basis.(reals.freq,k-1))
+        hardy_matrix[:,4*k-3] .=         hardy_basis.(reals.freq,k-1)
+        hardy_matrix[:,4*k-2] .=     im*(hardy_basis.(reals.freq,k-1))
+        hardy_matrix[:,4*k-1] .=    conj(hardy_basis.(reals.freq,k-1))
+        hardy_matrix[:,4*k]   .= im*conj(hardy_basis.(reals.freq,k-1))
     end
     return hardy_matrix
 end
 
+#=
 function calc_functional(reals::RealDomainData{T}, 
                          abcd::Array{Complex{T},3}, 
                          H::Int64, 
@@ -93,10 +94,12 @@ function calc_functional(reals::RealDomainData{T},
 
     return func
 end
+=#
 
 function evaluation(reals::RealDomainData{T}, 
                     abcd::Array{Complex{T},3}, 
-                    H::Int64, ab_coeff::Vector{Complex{S}}, 
+                    H::Int64, 
+                    ab_coeff::Vector{S}, 
                     hardy_matrix::Array{Complex{T},2}) where {S<:Real, T<:Real}
     param = hardy_matrix*ab_coeff
 

@@ -27,6 +27,7 @@ include("util.jl")
 include("data.jl")
 include("hardy.jl")
 include("nevanlinna_impl.jl")
+include("nevanlinna_opt.jl")
 include("schur.jl")
 
 end

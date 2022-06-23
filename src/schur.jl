@@ -4,8 +4,11 @@ function Nevanlinna_Schur(N_imag::Int64,
                     N_real::Int64,
                     omega_max::Float64,
                     eta::Float64,
-                    H::Int64,
-                    verbose::Bool=false)::Tuple{ImagDomainData{T}, RealDomainData{T}} where {T<:Real}
+                    H::Int64;
+                    verbose::Bool=false,
+                    iterations = 100000,
+                    lambda = 1e-5
+                    )::Tuple{ImagDomainData{T}, RealDomainData{T}} where {T<:Real}
     if N_real%2 == 1
         error("N_real must be even number!")
     end
@@ -20,7 +23,7 @@ function Nevanlinna_Schur(N_imag::Int64,
     ab_coeff  = zeros(ComplexF64, 2*H) 
     
     function functional(x::Vector{ComplexF64})::Float64
-        return Nevanlinna.calc_functional(reals, abcd, H, x, hardy_matrix)
+        return Nevanlinna.calc_functional(reals, abcd, H, x, hardy_matrix, lambda=lambda)
     end
     
     function jacobian(J::Vector{ComplexF64}, x::Vector{ComplexF64})
@@ -29,11 +32,11 @@ function Nevanlinna_Schur(N_imag::Int64,
    
     if verbose
         res = optimize(functional, jacobian, ab_coeff, BFGS(), 
-                        Optim.Options(iterations = 100000,
+                        Optim.Options(iterations = iterations,
                                       show_trace = true))
     else 
         res = optimize(functional, jacobian, ab_coeff, BFGS(), 
-                        Optim.Options(iterations = 100000,
+                        Optim.Options(iterations = iterations,
                                       show_trace = false))
     end
 

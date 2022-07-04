@@ -1,3 +1,71 @@
+<<<<<<< HEAD
+=======
+function Nevanlinna_Schur(N_imag::Int64, 
+                    omega::Array{T,1}, 
+                    green::Array{Complex{T},1},
+                    N_real::Int64,
+                    omega_max::Float64,
+                    eta::Float64,
+                    H::Int64;
+                    verbose::Bool=false,
+                    iterations = 100000,
+                    lambda = 1e-5
+                    )::Tuple{ImagDomainData{T}, RealDomainData{T}} where {T<:Real}
+    if N_real%2 == 1
+        error("N_real must be even number!")
+    end
+    
+    imags = ImagDomainData(N_imag, omega, green)
+    reals = RealDomainData(N_real, omega_max, eta, T=T)
+
+    phis = calc_phis(imags)
+    abcd = calc_abcd(imags, reals, phis)
+    hardy_matrix = calc_hardy_matrix(reals, H)
+    
+    ab_coeff  = zeros(ComplexF64, 2*H) 
+    
+    function functional(x::Vector{ComplexF64})::Float64
+        return Nevanlinna.calc_functional(reals, abcd, H, x, hardy_matrix, lambda=lambda)
+    end
+    
+    function jacobian(J::Vector{ComplexF64}, x::Vector{ComplexF64})
+        J .= gradient(functional, x)[1] 
+    end
+   
+    if verbose
+        res = optimize(functional, jacobian, ab_coeff, BFGS(), 
+                        Optim.Options(iterations = iterations,
+                                      show_trace = true))
+    else 
+        res = optimize(functional, jacobian, ab_coeff, BFGS(), 
+                        Optim.Options(iterations = iterations,
+                                      show_trace = false))
+    end
+
+    #=
+    if verbose
+        res = optimize(functional, jacobian, ab_coeff, ConjugateGradient(), 
+                        Optim.Options(iterations = 100000,
+                                      show_trace = true))
+    else 
+        res = optimize(functional, jacobian, ab_coeff, ConjugateGradient(), 
+                        Optim.Options(iterations = 100000,
+                                      show_trace = false))
+    end
+    =#
+ 
+    
+    if  !(Optim.converged(res))
+        error("Faild to optimize!")
+    end
+    
+    evaluation(reals, abcd, H, Optim.minimizer(res), hardy_matrix)
+    
+    return imags, reals
+end
+
+
+>>>>>>> 974716fd2b792a13bb2b48f2197ac7b1aad41246
 function calc_opt_N_imag(N::Int64,
                          matsu_omega::Array{Complex{T},1},
                          matsu_green::Array{Complex{T},1})::Int64 where {T<:Real}

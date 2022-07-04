@@ -48,8 +48,6 @@ function calc_hardy_matrix(reals::RealDomainData{T},
                            H::Int64)::Array{Complex{T}, 2} where {T<:Real}
     hardy_matrix = Array{Complex{T}}(undef, reals.N_real, 2*H)
     for k in 1:H
-        #hardy_matrix[:,k]   .=      hardy_basis.(reals.freq,k-1)
-        #hardy_matrix[:,k+H] .= conj(hardy_basis.(reals.freq,k-1))
         hardy_matrix[:,2*k-1] .=      hardy_basis.(reals.freq,k-1)
         hardy_matrix[:,2*k]   .= conj(hardy_basis.(reals.freq,k-1))
     end
@@ -69,27 +67,11 @@ function calc_functional(reals::RealDomainData{T},
     green = im * (one(T) .+ theta) ./ (one(T) .- theta)
     A = Float64.(imag(green)./pi)
 
-    """
-    tot_int = sum(A)*((2.0*reals.omega_max)/reals.N_real)
-
-    fft_spec = bfft(A)*2.0*reals.omega_max/reals.N_real
-
-    preder_spec = fft_spec[1:Int64(reals.N_real/2)]
-    t_vec = 2*pi*Vector(0:Int64(reals.N_real/2)-1)/(2.0*reals.omega_max)
-
-    second_der = 2*sum(t_vec.^4 .* abs.(preder_spec).^2 /(2*reals.omega_max))
-    """
     tot_int = integrate(reals.freq, A)
     second_der = integrate_squared_second_deriv(reals.freq, A) 
 
     max_theta = findmax(abs.(param))[1]
-    func::Float64 = 0.0
-    if max_theta > (1 - 1e-7)
-        # TODO: make the penalty differentiable
-        func = abs(1-tot_int)^2 + lambda*second_der + 1e-4
-    else
-        func = abs(1-tot_int)^2 + lambda*second_der
-    end
+    func = abs(1-tot_int)^2 + lambda*second_der
 
     return func
 end
@@ -97,19 +79,23 @@ end
 function evaluation(reals::RealDomainData{T}, 
                     abcd::Array{Complex{T},3}, 
                     H::Int64, ab_coeff::Vector{Complex{S}}, 
-                    hardy_matrix::Array{Complex{T},2}) where {S<:Real, T<:Real}
+                    hardy_matrix::Array{Complex{T},2})::Bool where {S<:Real, T<:Real}
     param = hardy_matrix*ab_coeff
 
     max_theta = findmax(abs.(param))[1]
     if max_theta <= 1.0
         println("max_theta=",max_theta)
         println("hardy optimization was success.")
+        causality = true
     else
         println("max_theta=",max_theta)
         println("hardy optimization was failure.")
+        causality = false
     end
 
     theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])
 
     reals.val .= im * (one(T) .+ theta) ./ (one(T) .- theta)
+
+    return causality
 end

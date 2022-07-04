@@ -158,4 +158,87 @@ function calc_functional(reals::RealDomainData, abcd::Array{Complex{BigFloat},3}
     return func
 end
 
+function calc_functional(reals::RealDomainData{T}, 
+                         abcd::Array{Complex{T},3}, 
+                         H::Int64, 
+                         ab_coeff::Vector{Complex{S}}, 
+                         hardy_matrix::Array{Complex{T},2};
+                         lambda::Float64 = 1e-5
+                         )::Float64 where {S<:Real, T<:Real}
+    param = hardy_matrix*ab_coeff
+
+    theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])
+    green = im * (one(T) .+ theta) ./ (one(T) .- theta)
+    A = Float64.(imag(green)./pi)
+
+    """
+    tot_int = sum(A)*((2.0*reals.omega_max)/reals.N_real)
+
+    fft_spec = bfft(A)*2.0*reals.omega_max/reals.N_real
+
+    preder_spec = fft_spec[1:Int64(reals.N_real/2)]
+    t_vec = 2*pi*Vector(0:Int64(reals.N_real/2)-1)/(2.0*reals.omega_max)
+
+    second_der = 2*sum(t_vec.^4 .* abs.(preder_spec).^2 /(2*reals.omega_max))
+    """
+    tot_int = integrate(reals.freq, A)
+    second_der = integrate_squared_second_deriv(reals.freq, A) 
+
+    max_theta = findmax(abs.(param))[1]
+    func = abs(1-tot_int)^2 + lambda*second_der
+
+    return func
+end
+
+
+function Nevanlinna_Schur(N_imag::Int64, 
+                    omega::Array{T,1}, 
+                    green::Array{Complex{T},1},
+                    N_real::Int64,
+                    omega_max::Float64,
+                    eta::Float64,
+                    ab_coeff::Array{ComplexF64,1},
+                    H::Int64,
+                    iter_tol::Int64,
+                    lambda::Float64,
+                    verbose::Bool=false)::Tuple{ImagDomainData{T}, RealDomainData{T}, Array{ComplexF64,1}, Bool, Bool} where {T<:Real}
+    if N_real%2 == 1
+        error("N_real must be even number!")
+    end
+    
+    imags = ImagDomainData(N_imag, omega, green)
+    reals = RealDomainData(N_real, omega_max, eta, T=T)
+
+    phis = calc_phis(imags)
+    abcd = calc_abcd(imags, reals, phis)
+    hardy_matrix = calc_hardy_matrix(reals, H)
+    
+    function functional(x::Vector{ComplexF64})::Float64
+        return calc_functional(reals, abcd, H, x, hardy_matrix, lambda=lambda)
+    end
+    function jacobian(J::Vector{ComplexF64}, x::Vector{ComplexF64})
+        J .= gradient(functional, x)[1] 
+    end
+
+    #function functional(x::Vector{Complex{T}})::Float64
+    #    return calc_functional(reals, abcd, H, x, hardy_matrix)
+    #end
+    #function jacobian(J::Vector{Complex{T}}, x::Vector{Complex{T}})
+    #    J .= gradient(functional, x)[1] 
+    #end
+   
+    res = optimize(functional, jacobian, ab_coeff, BFGS(), 
+                   Optim.Options(iterations = iter_tol,
+                                 show_trace = verbose))
+    
+    if  !(Optim.converged(res))
+        #error("Faild to optimize!")
+        println("Faild to optimize!")
+    end
+    
+    causality = evaluation(reals, abcd, H, Optim.minimizer(res), hardy_matrix)
+    
+    return imags, reals, Optim.minimizer(res), causality, (Optim.converged(res))
+end
+
 

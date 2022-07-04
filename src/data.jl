@@ -4,16 +4,16 @@ struct ImagDomainData{T<:Real}
     val   ::Array{Complex{T},1}
 end
 
-function ImagDomainData(N_imag::Int64,
-                        matsu ::Array{T,1},
-                        green ::Array{Complex{T},1}
+function ImagDomainData(matsu_omega::Array{Complex{T},1},
+                        matsu_green::Array{Complex{T},1},
+                        N_imag     ::Int64
                         )::ImagDomainData{T} where {T<:Real}
     val  = Array{Complex{T}}(undef, N_imag) 
     freq = Array{Complex{T}}(undef, N_imag) 
     
     for i in 1:N_imag
-        freq[i] = matsu[i]*im
-        val[i]  = (-green[i] - im) / (-green[i] + im)
+        freq[i] = matsu_omega[i]
+        val[i]  = (-matsu_green[i] - im) / (-matsu_green[i] + im)
     end
     
     Pick = Array{Complex{T}}(undef, N_imag, N_imag)

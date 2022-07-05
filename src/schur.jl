@@ -1,3 +1,4 @@
+"""
 <<<<<<< HEAD
 =======
 function Nevanlinna_Schur(N_imag::Int64, 
@@ -66,6 +67,8 @@ end
 
 
 >>>>>>> 974716fd2b792a13bb2b48f2197ac7b1aad41246
+"""
+
 function calc_opt_N_imag(N::Int64,
                          matsu_omega::Array{Complex{T},1},
                          matsu_green::Array{Complex{T},1})::Int64 where {T<:Real}

@@ -10,6 +10,7 @@ mutable struct NevanlinnaSolver{T<:Real}
     H::Int64                          #current value of H
     ab_coeff::Vector{ComplexF64}      #current solution for H
     hardy_matrix::Array{Complex{T},2} #hardy_matrix for H
+    iter_tol::Int64                   #upper bound of iteration
     lambda::Float64                   #regularization parameter for second derivative term
     verbose::Bool                       
 end
@@ -21,6 +22,7 @@ function NevanlinnaSolver(N_imag::Int64,
                           omega_max::Float64,
                           eta::Float64,
                           H_max::Int64,
+                          iter_tol::Int64,
                           lambda::Float64,
                           verbose::Bool=false
                           )::NevanlinnaSolver{T} where {T<:Real}
@@ -38,7 +40,7 @@ function NevanlinnaSolver(N_imag::Int64,
 
     hardy_matrix = calc_hardy_matrix(reals, H_min)
 
-    sol = NevanlinnaSolver(matsu_omega, matsu_green, imags, reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, lambda, verbose)
+    sol = NevanlinnaSolver(matsu_omega, matsu_green, imags, reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, verbose)
 end
 
 function calc_H_min(reals::RealDomainData,
@@ -61,12 +63,11 @@ function calc_H_min(reals::RealDomainData,
         if isdefined(Main, :IJulia)
             Main.IJulia.stdio_bytes[] = 0
         end
-        error("H_min does not exist")
     end
+    error("H_min does not exist")
 end
 
 function solve!(sol::NevanlinnaSolver{T})::Nothing where {T<:Real}
-    #opt_reals = RealDomainData(sol.reals.N_real, sol.reals.omega_max, sol.reals.eta, T=T)
     opt_reals = deepcopy(sol.reals)
     ab_coeff  = copy(sol.ab_coeff)
     causality = false
@@ -75,7 +76,7 @@ function solve!(sol::NevanlinnaSolver{T})::Nothing where {T<:Real}
     for iH in sol.H_min:sol.H_max
         println("H=$(iH)")
         hardy_matrix = calc_hardy_matrix(sol.reals, iH)
-        opt_reals, ab_coeff, causality, optim = Nevanlinna_Schur(sol.reals, sol.abcd, iH, ab_coeff, hardy_matrix, 1000, sol.lambda, sol.verbose)
+        opt_reals, ab_coeff, causality, optim = Nevanlinna_Schur(sol.reals, sol.abcd, iH, ab_coeff, hardy_matrix, sol.iter_tol, sol.lambda, sol.verbose)
 
         #break if we face instability of optimization
         if causality && optim

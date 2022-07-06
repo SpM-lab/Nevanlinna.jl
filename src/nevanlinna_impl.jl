@@ -24,7 +24,8 @@ end
 
 function calc_abcd(imags::ImagDomainData{T}, 
                    reals::RealDomainData{T}, 
-                   phis::Vector{Complex{T}})::Array{Complex{T},3} where {T<:Real}
+                   phis::Vector{Complex{T}}
+                   )::Array{Complex{T},3} where {T<:Real}
     abcd = Array{Complex{T}}(undef, 2, 2, reals.N_real) 
 
     for i in 1:reals.N_real
@@ -45,7 +46,8 @@ function calc_abcd(imags::ImagDomainData{T},
 end
 
 function calc_hardy_matrix(reals::RealDomainData{T}, 
-                           H::Int64)::Array{Complex{T}, 2} where {T<:Real}
+                           H::Int64
+                           )::Array{Complex{T}, 2} where {T<:Real}
     hardy_matrix = Array{Complex{T}}(undef, reals.N_real, 2*H)
     for k in 1:H
         hardy_matrix[:,2*k-1] .=      hardy_basis.(reals.freq,k-1)
@@ -76,10 +78,12 @@ function calc_functional(reals::RealDomainData{T},
     return func
 end
 
-function evaluation(reals::RealDomainData{T}, 
+function evaluation!(reals::RealDomainData{T}, 
                     abcd::Array{Complex{T},3}, 
                     H::Int64, ab_coeff::Vector{Complex{S}}, 
-                    hardy_matrix::Array{Complex{T},2})::Bool where {S<:Real, T<:Real}
+                    hardy_matrix::Array{Complex{T},2}
+                    )::Bool where {S<:Real, T<:Real}
+
     param = hardy_matrix*ab_coeff
 
     max_theta = findmax(abs.(param))[1]

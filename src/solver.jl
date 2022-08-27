@@ -21,6 +21,7 @@ function NevanlinnaSolver(N_imag::Int64,
                           N_real::Int64,
                           omega_max::Float64,
                           eta::Float64,
+                          sum::Float64,
                           H_max::Int64,
                           iter_tol::Int64,
                           lambda::Float64,
@@ -31,7 +32,7 @@ function NevanlinnaSolver(N_imag::Int64,
     end
 
     imags = ImagDomainData(matsu_omega, matsu_green, N_imag)
-    reals = RealDomainData(N_real, omega_max, eta, T=T)
+    reals = RealDomainData(N_real, omega_max, eta, sum, T=T)
 
     phis = calc_phis(imags)
     abcd = calc_abcd(imags, reals, phis)

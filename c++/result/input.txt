@@ -1,0 +1,1 @@
+../result/green.dat 	 33 	 ../result/out_spec.dat

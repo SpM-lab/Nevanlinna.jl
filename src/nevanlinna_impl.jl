@@ -12,11 +12,11 @@ function calc_phis(imags::ImagDomainData{T})::Vector{Complex{T}} where {T<:Real}
             prod = Array{Complex{T}}(undef, 2, 2) 
             prod[1,1] = (imags.freq[k] - imags.freq[j]) / (imags.freq[k] - conj(imags.freq[j]))
             prod[1,2] = phis[j]
-            prod[2,1] = conj(phis[j])*(imags.freq[k] - imags.freq[j]) / (imags.freq[k] - conj(imags.freq[j]))
+            prod[2,1] = conj(phis[j]) * (imags.freq[k] - imags.freq[j]) / (imags.freq[k] - conj(imags.freq[j]))
             prod[2,2] = one(T)
             view(abcds,:,:,k) .= view(abcds,:,:,k)*prod
         end
-        phis[j+1] = (-abcds[2,2,j+1]*imags.val[j+1]+abcds[1,2,j+1]) / (abcds[2,1,j+1]*imags.val[j+1]-abcds[1,1,j+1])
+        phis[j+1] = (-abcds[2,2,j+1]*imags.val[j+1] + abcds[1,2,j+1]) / (abcds[2,1,j+1]*imags.val[j+1] - abcds[1,1,j+1])
     end
     
     return phis
@@ -73,7 +73,7 @@ function calc_functional(reals::RealDomainData{T},
     second_der = integrate_squared_second_deriv(reals.freq, A) 
 
     max_theta = findmax(abs.(param))[1]
-    func = abs(1-tot_int)^2 + lambda*second_der
+    func = abs(reals.sum-tot_int)^2 + lambda*second_der
 
     return func
 end

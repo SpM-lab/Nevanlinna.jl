@@ -47,13 +47,15 @@ struct RealDomainData{T<:Real}
     N_real   ::Int64
     omega_max::Float64
     eta      ::Float64
+    sum      ::Float64
     freq     ::Array{Complex{T},1}
     val      ::Array{Complex{T},1}
 end
 
 function RealDomainData(N_real   ::Int64,
                         omega_max::Float64,
-                        eta      ::Float64
+                        eta      ::Float64,
+                        sum      ::Float64
                         ;
                         T::Type=BigFloat,
                         small_omega::Float64 = 1e-5,
@@ -62,26 +64,25 @@ function RealDomainData(N_real   ::Int64,
     if mesh === :linear
         val = Array{Complex{T}}(collect(LinRange(-omega_max, omega_max, N_real)))
         freq = val .+ eta * im
-        return RealDomainData(N_real, omega_max, eta, freq, val)
+        return RealDomainData(N_real, omega_max, eta, sum, freq, val)
     elseif mesh === :log
         half_N = N_real ÷ 2
         mesh = exp.(LinRange(log.(small_omega), log.(omega_max), half_N))
         val = Array{Complex{T}}([reverse(-mesh); mesh])
         freq = val .+ eta * im
-        return RealDomainData(N_real, omega_max, eta, freq, val)
+        return RealDomainData(N_real, omega_max, eta, sum, freq, val)
+    elseif mesh === :test
+        val  = Array{Complex{T}}(undef, N_real) 
+        freq = Array{Complex{T}}(undef, N_real) 
+        inter::T = big(2.0*omega_max) / (N_real-1)
+        temp ::T = big(-omega_max)
+        freq[1] = -big(omega_max) + big(eta)*im
+        for i in 2:N_real
+            temp += inter
+            freq[i] = temp + big(eta)*im
+        end
+        return RealDomainData(N_real, omega_max, eta, sum, freq, val)
     else
         throw(ArgumentError("Invalid mesh"))
     end
-    
-    """
-    val  = Array{Complex{T}}(undef, N_real) 
-    freq = Array{Complex{T}}(undef, N_real) 
-    inter::T = (2.0*omega_max) / (N_real-1)
-    temp ::T = -omega_max
-    freq[1] = -omega_max + eta*im
-    for i in 2:N_real
-        temp += inter
-        freq[i] = temp + eta*im
-    end
-    """
 end

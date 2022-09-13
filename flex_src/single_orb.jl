@@ -44,7 +44,6 @@ function make_free_giw(
     return make_free_giw(lat, SparseIR.β(basis), basis.smpl_wn_f.sampling_points)
 end
 
-#=
 """
 Make free green function on given fermionic frequencies
 """
@@ -62,7 +61,6 @@ function make_free_giw(
     end
     giw
 end
-=#
 
 """
 Make interacting green function for IR basis
@@ -106,7 +104,6 @@ function find_next_U(
     try_ratio_U
 end
 
-#=
 function flex_scheme(
         gkf      ::Array{ComplexF64,3}, 
         ratio_U  ::Float64,
@@ -153,7 +150,6 @@ function flex_scheme(
 
     return new_var, return_gkf, mu_new
 end
-=#
 
 """
 Compute chi0 
@@ -308,7 +304,6 @@ function calc_stoner_with_chi0(
     return stoner
 end
 
-#=
 """
 Compute self-consistent solutions for next_U
 return converged, solution
@@ -352,9 +347,7 @@ function scf_next_U(
 
     return var, converged, SingleSCFSolution(sol.pre_calc, sol.precision, sol.loose_precision, next_ratio_U, mu_new, gkf_copy)
 end
-=#
 
-#=
 function flex_exe(
         sol  ::SingleSCFSolution,
         lat  ::SingleLatticeModel,
@@ -392,7 +385,6 @@ function flex_exe(
     
     return var, full_sol
 end
-=#
 
 
 """

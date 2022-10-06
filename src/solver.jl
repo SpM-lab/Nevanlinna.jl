@@ -26,13 +26,15 @@ function NevanlinnaSolver(N_imag::Int64,
                           iter_tol::Int64,
                           lambda::Float64,
                           verbose::Bool=false
+                          ;
+                          mesh::Symbol=:linear
                           )::NevanlinnaSolver{T} where {T<:Real}
     if N_real%2 == 1
         error("N_real must be even number!")
     end
 
     imags = ImagDomainData(matsu_omega, matsu_green, N_imag)
-    reals = RealDomainData(N_real, omega_max, eta, sum, T=T)
+    reals = RealDomainData(N_real, omega_max, eta, sum, T=T,mesh=mesh)
 
     phis = calc_phis(imags)
     abcd = calc_abcd(imags, reals, phis)

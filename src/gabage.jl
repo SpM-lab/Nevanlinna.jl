@@ -308,3 +308,58 @@ end
 """
 
 
+function calc_error(reals::RealDomainData{T},
+                    matsu_omega::Array{Complex{T},1},
+                    matsu_green::Array{Complex{T},1}) where {T<:Real}
+        delta_green = Array{Complex{T}}(undef, length(matsu_omega))
+
+        for i in 1:length(matsu_omega)
+            int_green = imag.(reals.val)/pi ./ (matsu_omega[i] .- (reals.freq))
+            back_i = integrate(real.(reals.freq), int_green)
+            delta_green[i] = back_i - matsu_green[i]
+        end
+
+        return findmax(abs.(delta_green))[1]
+end
+
+
+function calc_error(imags::ImagDomainData{T},
+                    matsu_omega::Vector{Complex{T}},
+                    matsu_green::Vector{Complex{T}},
+                    phis::Vector{Complex{T}},
+                    H::Int64,
+                    ab_coeff::Vector{ComplexF64}
+                    ) where {T<:Real}
+
+    matsu_abcd = Array{Complex{T}}(undef, 2, 2,  length(matsu_omega))
+    for i in 1:length(matsu_omega)
+        result = Matrix{Complex{T}}(I, 2, 2)
+        z = matsu_omega[i]
+        for j in 1:imags.N_imag
+            prod = Array{Complex{T}}(undef, 2, 2)
+            prod[1,1] = (z - imags.freq[j]) / (z - conj(imags.freq[j]))
+            prod[1,2] = phis[j]
+            prod[2,1] = conj(phis[j])*(z - imags.freq[j]) / (z - conj(imags.freq[j]))
+            prod[2,2] = one(T)
+            result *= prod
+        end
+        matsu_abcd[:,:,i] .= result
+    end
+
+
+    matsu_hardy_matrix = Array{Complex{T}}(undef, length(matsu_omega), 2*H)
+    for k in 1:H
+        matsu_hardy_matrix[:,2*k-1] .=      hardy_basis.(matsu_omega,k-1)
+        matsu_hardy_matrix[:,2*k]   .= conj(hardy_basis.(matsu_omega,k-1))
+    end
+    
+    matsu_param = matsu_hardy_matrix*ab_coeff
+
+    matsu_theta = (matsu_abcd[1,1,:].* matsu_param .+ matsu_abcd[1,2,:]) ./ (matsu_abcd[2,1,:].*matsu_param .+ matsu_abcd[2,2,:])
+
+    back_matsu_green = -im * (one(T) .+ matsu_theta) ./ (one(T) .- matsu_theta)
+
+    return findmax(abs.(back_matsu_green - matsu_green))[1]
+end
+
+    

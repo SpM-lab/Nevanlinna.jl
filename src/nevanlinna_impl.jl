@@ -99,6 +99,9 @@ function evaluation!(reals::RealDomainData{T},
         println("max_theta=",max_theta)
         println("hardy optimization was failure.")
         causality = false
+
+        #theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])
+        #reals.val .= im * (one(T) .+ theta) ./ (one(T) .- theta)
     end
 
     return causality

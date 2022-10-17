@@ -22,6 +22,8 @@ function calc_opt_N_imag(N::Int64,
                 Pick[i,j] = nom / den
             end
             Pick[j,j] += T(1e-250)
+            #Pick[j,j] += eps(T)
+            #Pick[j,j] += T(1e-18)
         end
 
         success = issuccess(cholesky(Pick,check = false))

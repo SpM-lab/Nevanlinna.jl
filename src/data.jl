@@ -1,7 +1,7 @@
 struct ImagDomainData{T<:Real}
-    N_imag::Int64
-    freq  ::Array{Complex{T},1}
-    val   ::Array{Complex{T},1}
+    N_imag::Int64               #The number of points used in Nevanlinna algorithm
+    freq  ::Array{Complex{T},1} #The values of Matsubara frequencies
+    val   ::Array{Complex{T},1} #The values of negative of Green function
 end
 
 function ImagDomainData(matsu_omega::Array{Complex{T},1},
@@ -13,7 +13,7 @@ function ImagDomainData(matsu_omega::Array{Complex{T},1},
     
     for i in 1:N_imag
         freq[i] = matsu_omega[i]
-        val[i]  = (-matsu_green[i] - im) / (-matsu_green[i] + im)
+        val[i]  = (-matsu_green[i] - im) / (-matsu_green[i] + im) 
     end
     
     Pick = Array{Complex{T}}(undef, N_imag, N_imag)
@@ -44,12 +44,12 @@ function ImagDomainData(matsu_omega::Array{Complex{T},1},
 end
 
 struct RealDomainData{T<:Real}
-    N_real   ::Int64
-    omega_max::Float64
-    eta      ::Float64
-    sum      ::Float64
-    freq     ::Array{Complex{T},1}
-    val      ::Array{Complex{T},1}
+    N_real   ::Int64               #The number of mesh in real axis
+    omega_max::Float64             #The energy cutoff of real axis
+    eta      ::Float64             #The paramer. The retarded Green function is evaluated at omega+i*eta
+    sum      ::Float64             #The value of sum of spectral function
+    freq     ::Array{Complex{T},1} #The values of frequencies of retarded Green function
+    val      ::Array{Complex{T},1} #The values of negative of retarded Green function
 end
 
 function RealDomainData(N_real   ::Int64,

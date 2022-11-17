@@ -1,6 +1,6 @@
 mutable struct NevanlinnaSolver{T<:Real}
-    matsu_omega::Vector{Complex{T}}   #input Matsubara frequency data
-    matsu_green::Vector{Complex{T}}   #input green function data
+#    matsu_omega::Vector{Complex{T}}   #input Matsubara frequency data
+#    matsu_green::Vector{Complex{T}}   #input green function data
     imags::ImagDomainData{T}          #imaginary domain data
     reals::RealDomainData{T}          #real domain data
     phis::Vector{Complex{T}}          #phis in schur algorithm
@@ -26,13 +26,15 @@ function NevanlinnaSolver(N_imag::Int64,
                           iter_tol::Int64,
                           lambda::Float64,
                           verbose::Bool=false
+                          ;
+                          mesh::Symbol=:linear
                           )::NevanlinnaSolver{T} where {T<:Real}
     if N_real%2 == 1
         error("N_real must be even number!")
     end
 
     imags = ImagDomainData(matsu_omega, matsu_green, N_imag)
-    reals = RealDomainData(N_real, omega_max, eta, sum, T=T)
+    reals = RealDomainData(N_real, omega_max, eta, sum, T=T,mesh=mesh)
 
     phis = calc_phis(imags)
     abcd = calc_abcd(imags, reals, phis)
@@ -41,7 +43,8 @@ function NevanlinnaSolver(N_imag::Int64,
 
     hardy_matrix = calc_hardy_matrix(reals, H_min)
 
-    sol = NevanlinnaSolver(matsu_omega, matsu_green, imags, reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, verbose)
+    #sol = NevanlinnaSolver(matsu_omega, matsu_green, imags, reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, verbose)
+    sol = NevanlinnaSolver(imags, reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, verbose)
 end
 
 function calc_H_min(reals::RealDomainData,

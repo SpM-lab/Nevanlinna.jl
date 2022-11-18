@@ -6,7 +6,8 @@ end
 
 function ImagDomainData(matsu_omega::Array{Complex{T},1},
                         matsu_green::Array{Complex{T},1},
-                        N_imag     ::Int64
+                        N_imag     ::Int64;
+                        verbose::Bool = false
                         )::ImagDomainData{T} where {T<:Real}
     val  = Array{Complex{T}}(undef, N_imag) 
     freq = Array{Complex{T}}(undef, N_imag) 
@@ -31,10 +32,12 @@ function ImagDomainData(matsu_omega::Array{Complex{T},1},
     
     success = issuccess(cholesky(Pick,check = false))
     
-    if success
-        println("Pick matrix is positive semi-definite.")
-    else
-        println("Pick matrix is non positive semi-definite matrix in Schur method.")
+    if verbose
+        if success
+            println("Pick matrix is positive semi-definite.")
+        else
+            println("Pick matrix is non positive semi-definite matrix in Schur method.")
+        end
     end
     
     freq = reverse(freq)

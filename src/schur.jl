@@ -5,7 +5,7 @@ function calc_opt_N_imag(N::Int64,
     @assert N == length(matsu_omega)
     @assert N == length(matsu_green)
 
-    freq = (matsu_omega .- im) ./ (matsu_omega .+ im)
+    freq = (matsu_omega  .- im) ./ (matsu_omega  .+ im)
     val  = (-matsu_green .- im) ./ (-matsu_green .+ im)
 
     k::Int64 = 0
@@ -22,8 +22,6 @@ function calc_opt_N_imag(N::Int64,
                 Pick[i,j] = nom / den
             end
             Pick[j,j] += T(1e-250)
-            #Pick[j,j] += eps(T)
-            #Pick[j,j] += T(1e-18)
         end
 
         success = issuccess(cholesky(Pick,check = false))
@@ -52,6 +50,7 @@ function Nevanlinna_Schur(reals::RealDomainData{T},
     function functional(x::Vector{ComplexF64})::Float64
         return calc_functional(reals, abcd, H, x, hardy_matrix, lambda=lambda)
     end
+
     function jacobian(J::Vector{ComplexF64}, x::Vector{ComplexF64})
         J .= gradient(functional, x)[1] 
     end
@@ -69,5 +68,3 @@ function Nevanlinna_Schur(reals::RealDomainData{T},
     
     return reals, Optim.minimizer(res), causality, (Optim.converged(res))
 end
-
-

@@ -1,6 +1,4 @@
 mutable struct NevanlinnaSolver{T<:Real}
-#    matsu_omega::Vector{Complex{T}}   #input Matsubara frequency data
-#    matsu_green::Vector{Complex{T}}   #input green function data
     imags::ImagDomainData{T}          #imaginary domain data
     reals::RealDomainData{T}          #real domain data
     phis::Vector{Complex{T}}          #phis in schur algorithm
@@ -34,16 +32,15 @@ function NevanlinnaSolver(N_imag::Int64,
     end
 
     imags = ImagDomainData(matsu_omega, matsu_green, N_imag)
-    reals = RealDomainData(N_real, omega_max, eta, sum, T=T,mesh=mesh)
+    reals = RealDomainData(N_real, omega_max, eta, sum, T=T, mesh=mesh)
 
     phis = calc_phis(imags)
     abcd = calc_abcd(imags, reals, phis)
     
-    reals, H_min, ab_coeff = calc_H_min(reals, abcd, lambda, true)
+    reals, H_min, ab_coeff = calc_H_min(reals, abcd, lambda, verbose)
 
     hardy_matrix = calc_hardy_matrix(reals, H_min)
 
-    #sol = NevanlinnaSolver(matsu_omega, matsu_green, imags, reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, verbose)
     sol = NevanlinnaSolver(imags, reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, verbose)
 end
 

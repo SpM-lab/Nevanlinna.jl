@@ -81,15 +81,18 @@ end
 function evaluation!(reals::RealDomainData{T}, 
                     abcd::Array{Complex{T},3}, 
                     H::Int64, ab_coeff::Vector{Complex{S}}, 
-                    hardy_matrix::Array{Complex{T},2}
+                    hardy_matrix::Array{Complex{T},2};
+                    verbose::Bool=false
                     )::Bool where {S<:Real, T<:Real}
 
     param = hardy_matrix*ab_coeff
 
     max_theta = findmax(abs.(param))[1]
     if max_theta <= 1.0
-        println("max_theta=",max_theta)
-        println("hardy optimization was success.")
+        if verbose
+           println("max_theta=",max_theta)
+           println("hardy optimization was success.")
+        end
         causality = true
 
         theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])

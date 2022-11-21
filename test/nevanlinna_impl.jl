@@ -11,7 +11,7 @@
     test_gw   = Array{Complex{T}}(undef, hnw)
     test_smpl = Array{Complex{T}}(undef, hnw)
 
-    f = open("test/c++/result/green.dat", "r")
+    f = open((@__DIR__) * "/c++/result/green.dat", "r")
     for i in 1:hnw
         list = readline(f)
         s  = split(list,'\t')
@@ -45,7 +45,7 @@
     spec = imag.(raw_reals.val)/pi
 
     cpp_phis = Array{Complex{T}}(undef, N_imag)
-    f = open("test/c++/result/phis.dat", "r")
+    f = open((@__DIR__) * "/c++/result/phis.dat", "r")
     for i in 1:N_imag
         list = readline(f)
         s  = split(list,'\t')
@@ -58,7 +58,7 @@
     @test cpp_phis ≈ phis
 
     cpp_abcd = Array{Complex{T}}(undef, 2, 2, N_real)
-    f = open("test/c++/result/abcd.dat", "r")
+    f = open((@__DIR__) * "/c++/result/abcd.dat", "r")
     for i in 1:N_real
         list = readline(f)
         s  = split(list,'\t')
@@ -80,7 +80,7 @@
     @test cpp_abcd ≈ abcd
 
     cpp_spec = Array{Float64}(undef, N_real)
-    f = open("test/c++/result/out_spec.dat", "r")
+    f = open((@__DIR__) * "/c++/result/out_spec.dat", "r")
     for i in 1:N_real
         list = readline(f)
         s  = split(list,'\t')

@@ -1,8 +1,8 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.8.1"
+julia_version = "1.8.2"
 manifest_format = "2.0"
-project_hash = "6c3fdc2c95e30f8eab22616c4784baa443e3972e"
+project_hash = "1455076dd42bd58ebad8c045cc9e23f69ea10ef2"
 
 [[deps.AbstractFFTs]]
 deps = ["ChainRulesCore", "LinearAlgebra"]
@@ -422,9 +422,9 @@ uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[deps.SparseIR]]
 deps = ["Bessels", "GenericLinearAlgebra", "LinearAlgebra", "MultiFloats", "QuadGK"]
-git-tree-sha1 = "08cd0191bbc3f09f0da115457f41c6288a1195f0"
+git-tree-sha1 = "b9d714fd58ed27a76eec6e615f7a67c8077da40f"
 uuid = "4fe2279e-80f0-4adb-8463-ee114ff56b7d"
-version = "0.96.0"
+version = "0.97.2"
 
 [[deps.SpecialFunctions]]
 deps = ["ChainRulesCore", "IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -489,7 +489,7 @@ version = "1.10.0"
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
-version = "1.10.0"
+version = "1.10.1"
 
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]

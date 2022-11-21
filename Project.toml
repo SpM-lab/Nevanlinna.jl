@@ -1,6 +1,6 @@
 name = "Nevanlinna"
 uuid = "0b21cfa8-e591-48a4-a07b-a9d20be7c264"
-authors = ["Hiroshi Shinaoka <h.shinaoka@gmail.com> and contributors"]
+authors = ["Kosuke Nogaki <nogaki.kosuke.83v@st.kyoto-u.ac.jp>, Hiroshi Shinaoka <h.shinaoka@gmail.com> and contributors"]
 version = "0.1.0"
 
 [deps]
@@ -12,7 +12,10 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
 julia = "1"
-SparseIR = "^0.96.0"
+SparseIR = "^0.97.0"
+MultiFloats = "^1.0.0"
+Optim = "^1.7.0"
+Zygote = "^0.6.0"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

@@ -1,6 +1,7 @@
 function calc_opt_N_imag(N::Int64,
                          matsu_omega::Array{Complex{T},1},
-                         matsu_green::Array{Complex{T},1}
+                         matsu_green::Array{Complex{T},1};
+                         verbose::Bool=false
                          )::Int64 where {T<:Real}
     @assert N == length(matsu_omega)
     @assert N == length(matsu_green)
@@ -31,7 +32,9 @@ function calc_opt_N_imag(N::Int64,
         end
     end
 
-    println("N_imag is setted as $(k-1)")
+    if verbose
+        println("N_imag is setted as $(k-1)")
+    end
 
     return (k-1)
 end

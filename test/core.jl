@@ -1,4 +1,4 @@
-@testset "nevanlinna_impl" begin
+@testset "core" begin
   
     T = BigFloat
     gaussian(x, mu, sigma) = exp(-((x-mu)/sigma)^2)/(sqrt(π)*sigma)

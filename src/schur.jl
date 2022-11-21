@@ -64,11 +64,10 @@ function Nevanlinna_Schur(reals::RealDomainData{T},
                                  show_trace = verbose))
     
     if  !(Optim.converged(res))
-        #error("Faild to optimize!")
         println("Faild to optimize!")
     end
     
-    causality = evaluation!(reals, abcd, H, Optim.minimizer(res), hardy_matrix)
+    causality = evaluation!(reals, abcd, H, Optim.minimizer(res), hardy_matrix, verbose=verbose)
     
     return reals, Optim.minimizer(res), causality, (Optim.converged(res))
 end

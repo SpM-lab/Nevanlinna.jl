@@ -80,7 +80,8 @@ end
 
 function evaluation!(reals::RealDomainData{T}, 
                     abcd::Array{Complex{T},3}, 
-                    H::Int64, ab_coeff::Vector{Complex{S}}, 
+                    H::Int64, 
+                    ab_coeff::Vector{Complex{S}}, 
                     hardy_matrix::Array{Complex{T},2};
                     verbose::Bool=false
                     )::Bool where {S<:Real, T<:Real}

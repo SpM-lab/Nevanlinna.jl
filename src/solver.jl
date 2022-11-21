@@ -22,24 +22,38 @@ function NevanlinnaSolver(N_imag::Int64,
                           sum::Float64,
                           H_max::Int64,
                           iter_tol::Int64,
-                          lambda::Float64,
-                          verbose::Bool=false
+                          lambda::Float64
                           ;
+                          verbose::Bool=false,
+                          pick_check=true,
+                          optimization=true,
                           mesh::Symbol=:linear
                           )::NevanlinnaSolver{T} where {T<:Real}
     if N_real%2 == 1
         error("N_real must be even number!")
     end
 
-    imags = ImagDomainData(matsu_omega, matsu_green, N_imag)
+    if pick_check
+        opt_N_imag =  calc_opt_N_imag(N_imag, matsu_omega, matsu_green, verbose=verbose)
+    else 
+        opt_N_imag = N_imag
+    end
+
+    imags = ImagDomainData(matsu_omega, matsu_green, opt_N_imag)
     reals = RealDomainData(N_real, omega_max, eta, sum, T=T, mesh=mesh)
 
     phis = calc_phis(imags)
     abcd = calc_abcd(imags, reals, phis)
     
-    reals, H_min, ab_coeff = calc_H_min(reals, abcd, lambda, verbose)
-
-    hardy_matrix = calc_hardy_matrix(reals, H_min)
+    if optimization
+        reals, H_min, ab_coeff = calc_H_min(reals, abcd, lambda, verbose)
+        hardy_matrix = calc_hardy_matrix(reals, H_min)
+    else
+        H_min::Int64 = 1
+        ab_coeff = zeros(ComplexF64, 2*H_min)
+        hardy_matrix = calc_hardy_matrix(reals, H_min)
+        evaluation!(reals, abcd, H_min, ab_coeff, hardy_matrix)
+    end
 
     sol = NevanlinnaSolver(imags, reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, verbose)
 end

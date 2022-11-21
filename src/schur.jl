@@ -17,9 +17,9 @@ function calc_opt_N_imag(N::Int64,
 
         for j in 1:k
             for i in 1:k
-                nom = one(T) - val[i] * conj(val[j])
+                num = one(T) - val[i]  * conj(val[j])
                 den = one(T) - freq[i] * conj(freq[j])
-                Pick[i,j] = nom / den
+                Pick[i,j] = num / den
             end
             Pick[j,j] += T(1e-250)
         end

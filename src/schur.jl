@@ -22,6 +22,7 @@ function calc_opt_N_imag(N::Int64,
                 den = one(T) - freq[i] * conj(freq[j])
                 Pick[i,j] = num / den
             end
+
             Pick[j,j] += T(1e-250)
         end
 

@@ -13,7 +13,8 @@ mutable struct NevanlinnaSolver{T<:Real}
     verbose::Bool                       
 end
 
-function NevanlinnaSolver(N_imag::Int64,
+#function NevanlinnaSolver(N_imag::Int64,
+function NevanlinnaSolver(
                           matsu_omega::Vector{Complex{T}},
                           matsu_green::Vector{Complex{T}},
                           N_real::Int64,
@@ -32,6 +33,9 @@ function NevanlinnaSolver(N_imag::Int64,
     if N_real%2 == 1
         error("N_real must be even number!")
     end
+
+    @assert length(matsu_omega) == length(matsu_green)
+    N_imag = length(matsu_omega) 
 
     if pick_check
         opt_N_imag =  calc_opt_N_imag(N_imag, matsu_omega, matsu_green, verbose=verbose)

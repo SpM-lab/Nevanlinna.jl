@@ -271,7 +271,7 @@ function hamburger_evaluation!(p::Vector{Complex{T}},
             z::Complex{T} = reals.freq[i]
             P, Q, G, D = calc_PQGD(z, p, q, gamma, delta)
             val[i] = (- G - reals.val[i] * D) / (P + reals.val[i] * Q)
-          end
+        end
     else
         println("max_theta=",max_theta)
         println("hardy optimization was failure.")

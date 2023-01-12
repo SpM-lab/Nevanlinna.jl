@@ -30,5 +30,6 @@ include("hardy.jl")
 #include("nevanlinna_impl.jl")
 include("core.jl")
 include("schur.jl")
+include("moment.jl")
 
 end

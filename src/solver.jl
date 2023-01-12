@@ -13,9 +13,7 @@ mutable struct NevanlinnaSolver{T<:Real}
     verbose::Bool                       
 end
 
-#function NevanlinnaSolver(N_imag::Int64,
-function NevanlinnaSolver(
-                          matsu_omega::Vector{Complex{T}},
+function NevanlinnaSolver(matsu_omega::Vector{Complex{T}},
                           matsu_green::Vector{Complex{T}},
                           N_real::Int64,
                           omega_max::Float64,

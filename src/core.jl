@@ -86,6 +86,13 @@ function evaluation!(reals::RealDomainData{T},
                     verbose::Bool=false
                     )::Bool where {S<:Real, T<:Real}
 
+    causality = check_causality(hardy_matrix, ab_coeff, verbose=verbose)
+    param = hardy_matrix*ab_coeff
+    if causality
+        theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])
+        reals.val .= im * (one(T) .+ theta) ./ (one(T) .- theta)
+    end
+#=
     param = hardy_matrix*ab_coeff
 
     max_theta = findmax(abs.(param))[1]
@@ -103,6 +110,36 @@ function evaluation!(reals::RealDomainData{T},
         println("hardy optimization was failure.")
         causality = false
     end
+=#
 
     return causality
+end
+
+function check_causality(hardy_matrix::Array{Complex{T},2},
+                         ab_coeff::Vector{Complex{S}};
+                         verbose::Bool=false
+                         )::Bool where {S<:Real, T<:Real}
+
+    param = hardy_matrix*ab_coeff
+
+    max_theta = findmax(abs.(param))[1]
+    if max_theta <= 1.0
+        if verbose
+           println("max_theta=",max_theta)
+           println("hardy optimization was success.")
+        end
+        causality = true
+    else
+        println("max_theta=",max_theta)
+        println("hardy optimization was failure.")
+        causality = false
+    end
+    return causality
+end
+
+function evaluation!(sol::NevanlinnaSolver{T};
+                     verbose::Bool=false
+                    )::Bool where {T<:Real}
+
+    return evaluation!(sol.reals, sol.abcd, sol.H, sol.ab_coeff, sol.hardy_matrix, verbose=verbose)
 end

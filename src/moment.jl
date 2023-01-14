@@ -80,7 +80,7 @@ function HamburgerNevanlinnaSolver(
     
     mat_real_omega  = Array{Complex{T}}(undef, N_real, n2+1)
     for i in 1:N_real, j in 1:(n2 + 1)
-        mat_real_omega[i,j]  = reals.freq[j]^(i-1)
+        mat_real_omega[i,j]  = reals.freq[i]^(j-1)
     end
 
     phis = calc_phis(imags)

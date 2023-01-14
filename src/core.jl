@@ -78,6 +78,30 @@ function calc_functional(reals::RealDomainData{T},
     return func
 end
 
+function calc_functional(
+                    sol::NevanlinnaSolver{T},
+                    H::Int64, 
+                    ab_coeff::Vector{Complex{S}}, 
+                    hardy_matrix::Array{Complex{T},2};
+                    )::Float64 where {S<:Real, T<:Real}
+
+    param = hardy_matrix*ab_coeff
+
+    theta = (sol.abcd[1,1,:].* param .+ sol.abcd[1,2,:]) ./ (sol.abcd[2,1,:].*param .+ sol.abcd[2,2,:])
+    green = im * (one(T) .+ theta) ./ (one(T) .- theta)
+    A = Float64.(imag(green)./pi)
+
+    tot_int = integrate(sol.reals.freq, A)
+    second_der = integrate_squared_second_deriv(sol.reals.freq, A) 
+
+    max_theta = findmax(abs.(param))[1]
+    func = abs(sol.reals.sum-tot_int)^2 + sol.lambda*second_der
+
+    return func
+end
+
+
+
 function evaluation!(reals::RealDomainData{T}, 
                     abcd::Array{Complex{T},3}, 
                     H::Int64, 
@@ -141,5 +165,12 @@ function evaluation!(sol::NevanlinnaSolver{T};
                      verbose::Bool=false
                     )::Bool where {T<:Real}
 
-    return evaluation!(sol.reals, sol.abcd, sol.H, sol.ab_coeff, sol.hardy_matrix, verbose=verbose)
+    causality = check_causality(sol.hardy_matrix, sol.ab_coeff, verbose=verbose)
+    if causality
+        param = sol.hardy_matrix*sol.ab_coeff
+        theta = (sol.abcd[1,1,:].* param .+ sol.abcd[1,2,:]) ./ (sol.abcd[2,1,:].*param .+ sol.abcd[2,2,:])
+        sol.reals.val .= im * (one(T) .+ theta) ./ (one(T) .- theta)
+    end
+
+    return causality
 end

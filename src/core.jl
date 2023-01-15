@@ -56,28 +56,6 @@ function calc_hardy_matrix(reals::RealDomainData{T},
     return hardy_matrix
 end
 
-function calc_functional(reals::RealDomainData{T}, 
-                         abcd::Array{Complex{T},3}, 
-                         H::Int64, 
-                         ab_coeff::Vector{Complex{S}}, 
-                         hardy_matrix::Array{Complex{T},2};
-                         lambda::Float64 = 1e-5
-                         )::Float64 where {S<:Real, T<:Real}
-    param = hardy_matrix*ab_coeff
-
-    theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])
-    green = im * (one(T) .+ theta) ./ (one(T) .- theta)
-    A = Float64.(imag(green)./pi)
-
-    tot_int = integrate(reals.freq, A)
-    second_der = integrate_squared_second_deriv(reals.freq, A) 
-
-    max_theta = findmax(abs.(param))[1]
-    func = abs(reals.sum-tot_int)^2 + lambda*second_der
-
-    return func
-end
-
 function calc_functional(
                     sol::NevanlinnaSolver{T},
                     H::Int64, 
@@ -98,45 +76,6 @@ function calc_functional(
     func = abs(sol.reals.sum-tot_int)^2 + sol.lambda*second_der
 
     return func
-end
-
-
-
-function evaluation!(reals::RealDomainData{T}, 
-                    abcd::Array{Complex{T},3}, 
-                    H::Int64, 
-                    ab_coeff::Vector{Complex{S}}, 
-                    hardy_matrix::Array{Complex{T},2};
-                    verbose::Bool=false
-                    )::Bool where {S<:Real, T<:Real}
-
-    causality = check_causality(hardy_matrix, ab_coeff, verbose=verbose)
-    param = hardy_matrix*ab_coeff
-    if causality
-        theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])
-        reals.val .= im * (one(T) .+ theta) ./ (one(T) .- theta)
-    end
-#=
-    param = hardy_matrix*ab_coeff
-
-    max_theta = findmax(abs.(param))[1]
-    if max_theta <= 1.0
-        if verbose
-           println("max_theta=",max_theta)
-           println("hardy optimization was success.")
-        end
-        causality = true
-
-        theta = (abcd[1,1,:].* param .+ abcd[1,2,:]) ./ (abcd[2,1,:].*param .+ abcd[2,2,:])
-        reals.val .= im * (one(T) .+ theta) ./ (one(T) .- theta)
-    else
-        println("max_theta=",max_theta)
-        println("hardy optimization was failure.")
-        causality = false
-    end
-=#
-
-    return causality
 end
 
 function check_causality(hardy_matrix::Array{Complex{T},2},

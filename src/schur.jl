@@ -40,38 +40,6 @@ function calc_opt_N_imag(N::Int64,
     return (k-1)
 end
 
- 
-function Nevanlinna_Schur(reals::RealDomainData{T},
-                          abcd::Array{Complex{T},3},
-                          H::Int64,
-                          ab_coeff::Array{ComplexF64,1},
-                          hardy_matrix::Array{Complex{T},2},
-                          iter_tol::Int64,
-                          lambda::Float64,
-                          verbose::Bool=false
-                          )::Tuple{RealDomainData{T}, Array{ComplexF64,1}, Bool, Bool} where {T<:Real}
-
-    function functional(x::Vector{ComplexF64})::Float64
-        return calc_functional(reals, abcd, H, x, hardy_matrix, lambda=lambda)
-    end
-
-    function jacobian(J::Vector{ComplexF64}, x::Vector{ComplexF64})
-        J .= gradient(functional, x)[1] 
-    end
-
-    res = optimize(functional, jacobian, ab_coeff, BFGS(), 
-                   Optim.Options(iterations = iter_tol,
-                                 show_trace = verbose))
-    
-    if  !(Optim.converged(res))
-        println("Faild to optimize!")
-    end
-    
-    causality = evaluation!(reals, abcd, H, Optim.minimizer(res), hardy_matrix, verbose=verbose)
-    
-    return reals, Optim.minimizer(res), causality, (Optim.converged(res))
-end
-
 function hardy_optim!(
                 sol::NevanlinnaSolver{T},
                 H::Int64,
@@ -82,7 +50,6 @@ function hardy_optim!(
     loc_hardy_matrix = calc_hardy_matrix(sol.reals, H)
 
     function functional(x::Vector{ComplexF64})::Float64
-#        return calc_functional(reals, abcd, H, x, hardy_matrix, lambda=lambda)
         return calc_functional(sol, H, x, loc_hardy_matrix)
     end
 

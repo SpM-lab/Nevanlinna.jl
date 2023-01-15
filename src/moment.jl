@@ -141,7 +141,7 @@ function hardy_optim!(
     loc_hardy_matrix = calc_hardy_matrix(sol.nev_st.reals, H)
 
     function functional(x::Vector{ComplexF64})::Float64
-        #return calc_functional(sol.p, sol.q, sol.gamma, sol.delta, sol.mat_real_omega, sol.nev_st.reals, sol.nev_st.abcd, H, x, loc_hardy_matrix, lambda=sol.nev_st.lambda)
+#       return calc_functional(sol.p, sol.q, sol.gamma, sol.delta, sol.mat_real_omega, sol.nev_st.reals, sol.nev_st.abcd, H, x, loc_hardy_matrix, lambda=sol.nev_st.lambda)
         return calc_functional(sol, H, x, loc_hardy_matrix)
     end
 

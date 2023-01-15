@@ -13,21 +13,23 @@ mutable struct NevanlinnaSolver{T<:Real}
     verbose::Bool                       
 end
 
-function NevanlinnaSolver(matsu_omega::Vector{Complex{T}},
-                          matsu_green::Vector{Complex{T}},
-                          N_real::Int64,
-                          omega_max::Float64,
-                          eta::Float64,
-                          sum::Float64,
-                          H_max::Int64,
-                          iter_tol::Int64,
-                          lambda::Float64
-                          ;
-                          verbose::Bool=false,
-                          pick_check=true,
-                          optimization=true,
-                          mesh::Symbol=:linear
-                          )::NevanlinnaSolver{T} where {T<:Real}
+function NevanlinnaSolver(
+                  matsu_omega ::Vector{Complex{T}},
+                  matsu_green ::Vector{Complex{T}},
+                  N_real      ::Int64,
+                  omega_max   ::Float64,
+                  eta         ::Float64,
+                  sum_rule    ::Float64,
+                  H_max       ::Int64,
+                  iter_tol    ::Int64,
+                  lambda      ::Float64
+                  ;
+                  verbose     ::Bool=false,
+                  pick_check  ::Bool=true,
+                  optimization::Bool=true,
+                  mesh        ::Symbol=:linear
+                  )::NevanlinnaSolver{T} where {T<:Real}
+
     if N_real%2 == 1
         error("N_real must be even number!")
     end
@@ -42,22 +44,31 @@ function NevanlinnaSolver(matsu_omega::Vector{Complex{T}},
     end
 
     imags = ImagDomainData(matsu_omega, matsu_green, opt_N_imag)
-    reals = RealDomainData(N_real, omega_max, eta, sum, T=T, mesh=mesh)
+    reals = RealDomainData(N_real, omega_max, eta, sum_rule, T=T, mesh=mesh)
 
     phis = calc_phis(imags)
     abcd = calc_abcd(imags, reals, phis)
-    
-    if optimization
-        reals, H_min, ab_coeff = calc_H_min(reals, abcd, lambda, verbose)
-        hardy_matrix = calc_hardy_matrix(reals, H_min)
-    else
-        H_min::Int64 = 1
-        ab_coeff = zeros(ComplexF64, 2*H_min)
-        hardy_matrix = calc_hardy_matrix(reals, H_min)
-        evaluation!(reals, abcd, H_min, ab_coeff, hardy_matrix)
-    end
+
+    H_min::Int64 = 1
+    ab_coeff = zeros(ComplexF64, 2*H_min)
+    hardy_matrix = calc_hardy_matrix(reals, H_min)
 
     sol = NevanlinnaSolver(imags, reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, verbose)
+    
+    if optimization
+#        reals, H_min, ab_coeff = calc_H_min(reals, abcd, lambda, verbose)
+#        hardy_matrix = calc_hardy_matrix(reals, H_min)
+        calc_H_min(sol)
+    else
+#        H_min::Int64 = 1
+#        ab_coeff = zeros(ComplexF64, 2*H_min)
+#        hardy_matrix = calc_hardy_matrix(reals, H_min)
+#        evaluation!(reals, abcd, H_min, ab_coeff, hardy_matrix)
+        evaluation!(sol)
+    end
+
+    return sol
+#    sol = NevanlinnaSolver(imags, reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, verbose)
 end
 
 function calc_H_min(reals::RealDomainData,
@@ -83,6 +94,31 @@ function calc_H_min(reals::RealDomainData,
     end
     error("H_min does not exist")
 end
+
+function calc_H_min(sol::NevanlinnaSolver{T},)::Nothing where {T<:Real}
+    H_bound::Int64 = 50
+    for iH in 1:H_bound
+        println("H=$(iH)")
+        zero_ab_coeff = zeros(ComplexF64, 2*iH)
+
+        causality, optim = hardy_optim!(sol, iH, zero_ab_coeff, iter_tol=500)
+
+        #break if we find optimal H in which causality is preserved and optimize is successful
+        if causality && optim
+            sol.H_min = sol.H
+            break
+        end
+
+        if isdefined(Main, :IJulia)
+            Main.IJulia.stdio_bytes[] = 0
+        end
+
+        if iH == H_bound
+            error("H_min does not exist")
+        end
+    end
+end
+
 
 function solve!(sol::NevanlinnaSolver{T})::Nothing where {T<:Real}
     opt_reals = deepcopy(sol.reals)

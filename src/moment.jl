@@ -124,7 +124,6 @@ function calc_functional(
     tot_int = integrate(sol.nev_st.reals.freq, A)
     second_der = integrate_squared_second_deriv(sol.nev_st.reals.freq, A) 
 
-    max_theta = findmax(abs.(param))[1]
     func = abs(sol.nev_st.reals.sum-tot_int)^2 + sol.nev_st.lambda*second_der
 
     return func
@@ -235,8 +234,6 @@ function hamburger_evaluation!(
 
         P, Q, G, D = calc_PQGD(sol.mat_real_omega, sol.p, sol.q, sol.gamma, sol.delta)
         sol.val .= (- G .- sol.nev_st.reals.val .* D) ./ (P .+ sol.nev_st.reals.val .* Q)
-    else
-        println("hardy optimization was failure.")
     end
 
     return causality

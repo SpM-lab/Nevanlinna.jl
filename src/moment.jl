@@ -339,8 +339,8 @@ function coefficient_lists(
         #kernel of A_{n2 + 1}
         A = extended_hankel[1:(n1-1),1:(n2+1)]
         q = nullspace(A)[:,1]
-        norm::Complex{T} = q[n2]
-        for i in 1:n2 
+        norm::Complex{T} = q[n2+1]
+        for i in 1:(n2+1) 
             q[i] /= norm
         end
     end

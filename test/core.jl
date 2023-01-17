@@ -38,11 +38,18 @@
 
     phis = Nevanlinna.calc_phis(imaginary)
     abcd = Nevanlinna.calc_abcd(imaginary, raw_reals, phis)
-    hardy_matrix = Nevanlinna.calc_hardy_matrix(raw_reals, H_max)
 
-    Nevanlinna.evaluation!(raw_reals, abcd, H_max, ab_coeff, hardy_matrix)
+    H_min::Int64 = 1
+    ab_coeff = zeros(ComplexF64, 2*H_min)
+    hardy_matrix = Nevanlinna.calc_hardy_matrix(raw_reals, H_min)
 
-    spec = imag.(raw_reals.val)/pi
+#    hardy_matrix = Nevanlinna.calc_hardy_matrix(raw_reals, H_max)
+
+    sol = NevanlinnaSolver(imaginary, raw_reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, false)
+    Nevanlinna.evaluation!(sol)
+#    Nevanlinna.evaluation!(raw_reals, abcd, H_max, ab_coeff, hardy_matrix)
+
+    spec = imag.(sol.reals.val)/pi
 
     cpp_phis = Array{Complex{T}}(undef, N_imag)
     f = open((@__DIR__) * "/c++/result/phis.dat", "r")

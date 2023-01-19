@@ -269,7 +269,8 @@ function existence_condition(
     if isPSD
         println("Postive semi-definite")
     else
-        println("Meeting non positive semi-definite matrix in moment calculation.")
+        #println("Meeting non positive semi-definite matrix in moment calculation.")
+        error("Meeting non positive semi-definite matrix in moment calculation.")
     end
 
     #check singularity

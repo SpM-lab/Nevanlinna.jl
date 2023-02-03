@@ -141,7 +141,6 @@ function hardy_optim!(
     loc_hardy_matrix = calc_hardy_matrix(sol.nev_st.reals, H)
 
     function functional(x::Vector{ComplexF64})::Float64
-#       return calc_functional(sol.p, sol.q, sol.gamma, sol.delta, sol.mat_real_omega, sol.nev_st.reals, sol.nev_st.abcd, H, x, loc_hardy_matrix, lambda=sol.nev_st.lambda)
         return calc_functional(sol, H, x, loc_hardy_matrix)
     end
 
@@ -164,7 +163,6 @@ function hardy_optim!(
         sol.nev_st.H = H
         sol.nev_st.ab_coeff = Optim.minimizer(res)
         sol.nev_st.hardy_matrix = loc_hardy_matrix
-#        evaluation!(sol.nev_st, verbose=false)
         hamburger_evaluation!(sol, verbose=false)
     end
     
@@ -256,7 +254,7 @@ function existence_condition(
 
     #check degeneracy
     if hankel[1,:] == zeros(Complex{T},N) && hankel[:,1] == zeros(Complex{T},N)
-        println("Degenerate")
+        error("Degenerate")
         isDegenerate = true
     else
     println("Non-degenerate")
@@ -269,7 +267,6 @@ function existence_condition(
     if isPSD
         println("Postive semi-definite")
     else
-        #println("Meeting non positive semi-definite matrix in moment calculation.")
         error("Meeting non positive semi-definite matrix in moment calculation.")
     end
 
@@ -289,7 +286,7 @@ function existence_condition(
     tl_hankel = hankel[1:n1, 1:n1]
     if rank(tl_hankel) < n1 
         isProper = false
-        println("Non-proper")
+        error("Non-proper")
     else
         isProper = true
         println("Proper")
@@ -330,21 +327,8 @@ function coefficient_lists(
     #p, q
     p = zeros(Complex{T},n1+1)
     q = zeros(Complex{T},n2+1)
-    if isDegenerate
-        p[1] = Complex{T}(1.0)
-    elseif isProper
-        orthogonal_polynomial(extended_hankel, p, n1)
-        orthogonal_polynomial(extended_hankel, q, n1 - 1)
-    else  #non-proper but not degenerate
-        orthogonal_polynomial(extended_hankel, p, n1 - 1)
-        #kernel of A_{n2 + 1}
-        A = extended_hankel[1:(n1-1),1:(n2+1)]
-        q = nullspace(A)[:,1]
-        norm::Complex{T} = q[n2+1]
-        for i in 1:(n2+1) 
-            q[i] /= norm
-        end
-    end
+    orthogonal_polynomial(extended_hankel, p, n1)
+    orthogonal_polynomial(extended_hankel, q, n1 - 1)
 
     #gamma, delta
     sym_p = symmetrizer(p[2:(n1+1)])

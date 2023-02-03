@@ -21,10 +21,10 @@ end
 
 function HamburgerNevanlinnaSolver(
                     moments     ::Vector{Complex{T}},
-                    matsu_omega ::Vector{Complex{T}},
-                    matsu_green ::Vector{Complex{T}},
+                    wn          ::Vector{Complex{T}},
+                    gw          ::Vector{Complex{T}},
                     N_real      ::Int64,
-                    omega_max   ::Float64,
+                    w_max       ::Float64,
                     eta         ::Float64,
                     sum_rule    ::Float64,
                     H_max       ::Int64,
@@ -57,42 +57,26 @@ function HamburgerNevanlinnaSolver(
         error("N_real must be even number!")
     end
 
-    @assert length(matsu_omega) == length(matsu_green)
-    N_imag = length(matsu_omega) 
+    @assert length(wn) == length(gw)
+    N_imag = length(wn) 
 
     embed_nev_val = Vector{Complex{T}}(undef, N_imag)
     for i in 1:N_imag
-        z::Complex{T} = matsu_omega[i]
+        z::Complex{T} = wn[i]
         P, Q, G, D = calc_PQGD(z, p, q, gamma, delta)
-        nev_val = -matsu_green[i]
+        nev_val = -gw[i]
         embed_nev_val[i] = (- nev_val * P - G) / (nev_val * Q + D)
     end
 
-    if pick_check
-        opt_N_imag =  calc_opt_N_imag(N_imag, matsu_omega, -embed_nev_val, verbose=verbose)
-    else 
-        opt_N_imag = N_imag
-    end
+    nev_sol = NevanlinnaSolver(wn, -embed_nev_val, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, ham_option=true)
 
-    #generate input data for Schur
-    imags = ImagDomainData(matsu_omega, -embed_nev_val, opt_N_imag)
-    reals = RealDomainData(N_real, omega_max, eta, sum_rule, T=T, mesh=mesh)
-    
     mat_real_omega  = Array{Complex{T}}(undef, N_real, n2+1)
     for i in 1:N_real, j in 1:(n2 + 1)
-        mat_real_omega[i,j]  = reals.freq[i]^(j-1)
+        mat_real_omega[i,j]  = nev_sol.reals.freq[i]^(j-1)
     end
 
-    phis = calc_phis(imags)
-    abcd = calc_abcd(imags, reals, phis)
-    
     val = zeros(Complex{T}, N_real)
 
-    H_min::Int64 = 1
-    ab_coeff = zeros(ComplexF64, 2*H_min)
-    hardy_matrix = calc_hardy_matrix(reals, H_min)
-
-    nev_sol = NevanlinnaSolver(imags, reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, verbose)
     ham_nev_sol = HamburgerNevanlinnaSolver(moments, N_moments_, N, n1, n2, isPSD, isSingular, isProper, isDegenerate, p, q, gamma, delta, hankel, mat_real_omega, val, nev_sol, verbose)
 
     if optimization
@@ -103,72 +87,6 @@ function HamburgerNevanlinnaSolver(
 
     return ham_nev_sol
 end
-
-function calc_functional(
-                sol         ::HamburgerNevanlinnaSolver{T},
-                H           ::Int64, 
-                ab_coeff    ::Vector{Complex{S}}, 
-                hardy_matrix::Array{Complex{T},2};
-                )::Float64 where {S<:Real, T<:Real}
-
-    param = hardy_matrix*ab_coeff
-
-    theta = (sol.nev_st.abcd[1,1,:].* param .+ sol.nev_st.abcd[1,2,:]) ./ (sol.nev_st.abcd[2,1,:].*param .+ sol.nev_st.abcd[2,2,:])
-    nev_val = im * (one(T) .+ theta) ./ (one(T) .- theta)
-
-    P, Q, G, D = calc_PQGD(sol.mat_real_omega, sol.p, sol.q, sol.gamma, sol.delta)
-    val = (- G .- nev_val .* D) ./ (P .+ nev_val .* Q)
-
-    A = Float64.(imag(val)./pi)
-
-    tot_int = integrate(sol.nev_st.reals.freq, A)
-    second_der = integrate_squared_second_deriv(sol.nev_st.reals.freq, A) 
-
-    func = abs(sol.nev_st.reals.sum-tot_int)^2 + sol.nev_st.lambda*second_der
-
-    return func
-end
-
-
-
-function hardy_optim!(
-              sol     ::HamburgerNevanlinnaSolver{T},
-              H       ::Int64,
-              ab_coeff::Array{ComplexF64,1};
-              iter_tol::Int64=sol.nev_st.iter_tol,
-              )::Tuple{Bool, Bool} where {T<:Real}
-
-    loc_hardy_matrix = calc_hardy_matrix(sol.nev_st.reals, H)
-
-    function functional(x::Vector{ComplexF64})::Float64
-        return calc_functional(sol, H, x, loc_hardy_matrix)
-    end
-
-    function jacobian(J::Vector{ComplexF64}, x::Vector{ComplexF64})
-        J .= gradient(functional, x)[1] 
-    end
-
-    res = optimize(functional, jacobian, ab_coeff, BFGS(), 
-                   Optim.Options(iterations = iter_tol,
-                                 show_trace = sol.verbose))
-    
-    if  !(Optim.converged(res))
-        println("Faild to optimize!")
-    end
-
-    causality = check_causality(loc_hardy_matrix, Optim.minimizer(res), verbose=sol.verbose)
-
-    #causality = evaluation!(reals, abcd, H, Optim.minimizer(res), hardy_matrix, verbose=verbose)
-    if causality && (Optim.converged(res))
-        sol.nev_st.H = H
-        sol.nev_st.ab_coeff = Optim.minimizer(res)
-        sol.nev_st.hardy_matrix = loc_hardy_matrix
-        hamburger_evaluation!(sol, verbose=false)
-    end
-    
-    return causality, (Optim.converged(res))
-end
-
 
 function calc_H_min(sol::HamburgerNevanlinnaSolver{T})::Nothing where {T<:Real}
     H_bound::Int64 = 50
@@ -215,26 +133,6 @@ function solve!(sol::HamburgerNevanlinnaSolver{T})::Nothing where {T<:Real}
             Main.IJulia.stdio_bytes[] = 0
         end
     end
-end
-
-function hamburger_evaluation!(
-                sol    ::HamburgerNevanlinnaSolver{T};
-                verbose::Bool=false
-                )::Bool where {T<:Real}
-
-    causality = check_causality(sol.nev_st.hardy_matrix, sol.nev_st.ab_coeff, verbose=verbose)
-
-    if causality
-        param = sol.nev_st.hardy_matrix*sol.nev_st.ab_coeff
-        theta = (sol.nev_st.abcd[1,1,:].* param .+ sol.nev_st.abcd[1,2,:]) ./ (sol.nev_st.abcd[2,1,:].*param .+ sol.nev_st.abcd[2,2,:])
-
-        sol.nev_st.reals.val .= im * (one(T) .+ theta) ./ (one(T) .- theta)
-
-        P, Q, G, D = calc_PQGD(sol.mat_real_omega, sol.p, sol.q, sol.gamma, sol.delta)
-        sol.val .= (- G .- sol.nev_st.reals.val .* D) ./ (P .+ sol.nev_st.reals.val .* Q)
-    end
-
-    return causality
 end
 
 function existence_condition(
@@ -433,4 +331,3 @@ function calc_PQGD(matz ::Matrix{Complex{T}},
 
     return P, Q, G, D
 end
-

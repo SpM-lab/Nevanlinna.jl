@@ -45,39 +45,6 @@ function calc_abcd(imags::ImagDomainData{T},
     return abcd
 end
 
-function calc_hardy_matrix(reals::RealDomainData{T}, 
-                           H::Int64
-                           )::Array{Complex{T}, 2} where {T<:Real}
-    hardy_matrix = Array{Complex{T}}(undef, reals.N_real, 2*H)
-    for k in 1:H
-        hardy_matrix[:,2*k-1] .=      hardy_basis.(reals.freq,k-1)
-        hardy_matrix[:,2*k]   .= conj(hardy_basis.(reals.freq,k-1))
-    end
-    return hardy_matrix
-end
-
-function calc_functional(
-                    sol::NevanlinnaSolver{T},
-                    H::Int64, 
-                    ab_coeff::Vector{Complex{S}}, 
-                    hardy_matrix::Array{Complex{T},2};
-                    )::Float64 where {S<:Real, T<:Real}
-
-    param = hardy_matrix*ab_coeff
-
-    theta = (sol.abcd[1,1,:].* param .+ sol.abcd[1,2,:]) ./ (sol.abcd[2,1,:].*param .+ sol.abcd[2,2,:])
-    green = im * (one(T) .+ theta) ./ (one(T) .- theta)
-    A = Float64.(imag(green)./pi)
-
-    tot_int = integrate(sol.reals.freq, A)
-    second_der = integrate_squared_second_deriv(sol.reals.freq, A) 
-
-    max_theta = findmax(abs.(param))[1]
-    func = abs(sol.reals.sum-tot_int)^2 + sol.lambda*second_der
-
-    return func
-end
-
 function check_causality(hardy_matrix::Array{Complex{T},2},
                          ab_coeff::Vector{Complex{S}};
                          verbose::Bool=false
@@ -113,3 +80,25 @@ function evaluation!(sol::NevanlinnaSolver{T};
 
     return causality
 end
+
+function hamburger_evaluation!(
+                sol    ::HamburgerNevanlinnaSolver{T};
+                verbose::Bool=false
+                )::Bool where {T<:Real}
+
+    causality = check_causality(sol.nev_st.hardy_matrix, sol.nev_st.ab_coeff, verbose=verbose)
+
+    if causality
+        param = sol.nev_st.hardy_matrix*sol.nev_st.ab_coeff
+        theta = (sol.nev_st.abcd[1,1,:].* param .+ sol.nev_st.abcd[1,2,:]) ./ (sol.nev_st.abcd[2,1,:].*param .+ sol.nev_st.abcd[2,2,:])
+
+        sol.nev_st.reals.val .= im * (one(T) .+ theta) ./ (one(T) .- theta)
+
+        P, Q, G, D = calc_PQGD(sol.mat_real_omega, sol.p, sol.q, sol.gamma, sol.delta)
+        sol.val .= (- G .- sol.nev_st.reals.val .* D) ./ (P .+ sol.nev_st.reals.val .* Q)
+    end
+
+    return causality
+end
+
+

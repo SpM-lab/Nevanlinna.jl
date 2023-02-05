@@ -1,1 +1,3 @@
-export ImagDomainData, RealDomainData, NevanlinnaSolver
+export NevanlinnaSolver
+export HamburgerNevanlinnaSolver
+export solve!

@@ -26,10 +26,11 @@ include("export.jl")
 include("util.jl")
 include("data.jl")
 include("solver.jl")
+include("ham_solver.jl")
 include("hardy.jl")
 #include("nevanlinna_impl.jl")
 include("core.jl")
 include("schur.jl")
-include("moment.jl")
+include("optimize.jl")
 
 end

@@ -14,10 +14,10 @@ mutable struct NevanlinnaSolver{T<:Real}
 end
 
 function NevanlinnaSolver(
-                  matsu_omega ::Vector{Complex{T}},
-                  matsu_green ::Vector{Complex{T}},
+                  wn          ::Vector{Complex{T}},
+                  gw          ::Vector{Complex{T}},
                   N_real      ::Int64,
-                  omega_max   ::Float64,
+                  w_max       ::Float64,
                   eta         ::Float64,
                   sum_rule    ::Float64,
                   H_max       ::Int64,
@@ -27,24 +27,25 @@ function NevanlinnaSolver(
                   verbose     ::Bool=false,
                   pick_check  ::Bool=true,
                   optimization::Bool=true,
-                  mesh        ::Symbol=:linear
+                  mesh        ::Symbol=:linear,
+                  ham_option  ::Bool=false #option for using in Hamburger moment problem
                   )::NevanlinnaSolver{T} where {T<:Real}
 
     if N_real%2 == 1
         error("N_real must be even number!")
     end
 
-    @assert length(matsu_omega) == length(matsu_green)
-    N_imag = length(matsu_omega) 
+    @assert length(wn) == length(gw)
+    N_imag = length(wn) 
 
     if pick_check
-        opt_N_imag =  calc_opt_N_imag(N_imag, matsu_omega, matsu_green, verbose=verbose)
+        opt_N_imag =  calc_opt_N_imag(N_imag, wn, gw, verbose=verbose)
     else 
         opt_N_imag = N_imag
     end
 
-    imags = ImagDomainData(matsu_omega, matsu_green, opt_N_imag)
-    reals = RealDomainData(N_real, omega_max, eta, sum_rule, T=T, mesh=mesh)
+    imags = ImagDomainData(wn, gw, opt_N_imag)
+    reals = RealDomainData(N_real, w_max, eta, sum_rule, T=T, mesh=mesh)
 
     phis = calc_phis(imags)
     abcd = calc_abcd(imags, reals, phis)
@@ -54,6 +55,10 @@ function NevanlinnaSolver(
     hardy_matrix = calc_hardy_matrix(reals, H_min)
 
     sol = NevanlinnaSolver(imags, reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, verbose)
+
+    if ham_option
+        return sol
+    end
     
     if optimization
         calc_H_min(sol)

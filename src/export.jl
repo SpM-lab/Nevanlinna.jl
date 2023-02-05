@@ -1,3 +1,3 @@
 export NevanlinnaSolver
-export HamburgerNenanlinnaSolver
+export HamburgerNevanlinnaSolver
 export solve!

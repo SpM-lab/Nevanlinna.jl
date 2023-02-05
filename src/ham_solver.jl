@@ -68,7 +68,7 @@ function HamburgerNevanlinnaSolver(
         embed_nev_val[i] = (- nev_val * P - G) / (nev_val * Q + D)
     end
 
-    nev_sol = NevanlinnaSolver(wn, -embed_nev_val, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, ham_option=true)
+    nev_sol = NevanlinnaSolver(wn, -embed_nev_val, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, verbose=true, ham_option=true)
 
     mat_real_omega  = Array{Complex{T}}(undef, N_real, n2+1)
     for i in 1:N_real, j in 1:(n2 + 1)

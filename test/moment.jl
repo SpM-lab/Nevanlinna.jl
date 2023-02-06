@@ -19,10 +19,12 @@
 
         hnw = length(basis.smpl_wn_f.sampling_points)÷2
 
-        input_smpl = Array{Complex{T}}(undef, hnw)
-        input_gw   = Array{Complex{T}}(undef, hnw)
+        #To exclude effect of enviroment, we limit data until 30th
 
-        for i in 1:hnw
+        input_smpl = Array{Complex{T}}(undef, 31)
+        input_gw   = Array{Complex{T}}(undef, 31)
+
+        for i in 1:31
             input_smpl[i]= SparseIR.valueim(basis.smpl_wn_f.sampling_points[hnw+i], beta)
             input_gw[i]  = gw[hnw+i]
         end

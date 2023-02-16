@@ -1,6 +1,6 @@
 name = "Nevanlinna"
 uuid = "0b21cfa8-e591-48a4-a07b-a9d20be7c264"
-authors = ["Kosuke Nogaki <nogaki.kosuke.83v@st.kyoto-u.ac.jp>, Hiroshi Shinaoka <h.shinaoka@gmail.com> and contributors"]
+authors = ["Kosuke Nogaki <nogaki.kosuke.83v@st.kyoto-u.ac.jp>, Jiani Fei <jianif@stanford.edu>, Emanuel Gull <egull@umich.edu>, Hiroshi Shinaoka <h.shinaoka@gmail.com>"]
 version = "0.1.0"
 
 [deps]

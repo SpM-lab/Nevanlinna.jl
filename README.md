@@ -19,8 +19,3 @@ git clone https://github.com/nogaki/Nevanlinna.jl.git
 julia -e "import Pkg; Pkg.add(path=\"Nevanlinna.jl\")"
 ```
 This is *not* recommended, as you will get the unstable development version and no updates.
-
-## Usage
-
-
-## Tutorial and sample codes

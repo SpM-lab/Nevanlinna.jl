@@ -1,0 +1,13 @@
+[basic]
+  N_real = 1000
+  w_max = 10.0
+  eta = 0.001
+  sum_rule = 1.0
+  H_max = 50
+  iter_tol = 1000
+  lambda = 1e-4
+[option]
+#  verbose = false
+#  pick_check = true
+#  optimization = false
+#  mesh = :linear

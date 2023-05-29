@@ -4,6 +4,8 @@ using LinearAlgebra
 using SparseIR
 using Optim
 using Zygote
+using Comonicon
+using TOML
 
 # Some hack
 using MultiFloats
@@ -33,4 +35,121 @@ include("core.jl")
 include("schur.jl")
 include("optimize.jl")
 
+
+@cast function bare(input_data::String, input_param::String, output_data::String)
+    f= open(input_data, "r")
+    N_imag = parse(Int64,readline(f))
+    wn = Array{Complex{BigFloat}}(undef, N_imag)
+    gw = Array{Complex{BigFloat}}(undef, N_imag)
+
+    for i in 1:N_imag
+        data = parse.(Float64,split(readline(f), keepempty=false))
+        wn[i] = 0.0 + data[1]*im
+        gw[i] = data[2] + data[3]*im
+    end
+    close(f)
+
+    param = TOML.parsefile(input_param)
+
+    N_real::Int64     = param["basic"]["N_real"]
+    w_max::Float64    = param["basic"]["w_max"]
+    eta::Float64      = param["basic"]["eta"]
+    sum_rule::Float64 = param["basic"]["sum_rule"]
+    H_max::Int64      = param["basic"]["H_max"]
+    iter_tol::Int64   = param["basic"]["iter_tol"]
+    lambda::Float64   = param["basic"]["lambda"]
+
+    verbose::Bool      = false
+    pick_check::Bool   = true
+    optimization::Bool = true
+    mesh::Symbol       = :linear
+
+    if haskey(param, "option")
+        if haskey(param["option"], "verbose")
+            verbose = param["option"]["verbose"]
+        end
+        if haskey(param["option"], "pick_check")
+            pick_check = param["option"]["pick_check"]
+        end
+        if haskey(param["option"], "optimization")
+            optimization = param["option"]["optimization"]
+        end
+        if haskey(param["option"], "mesh")
+            mesh = param["option"]["mesh"]
+        end
+    end
+
+    sol = NevanlinnaSolver(wn, gw, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, verbose=verbose, pick_check = pick_check, optimization = optimization, mesh = mesh)
+    if optimization 
+        solve!(sol)
+    end
+
+    open(output_data, "w") do f
+        for i in 1:N_real
+            println(f, Float64(real(sol.reals.freq[i])), "\t", Float64(imag(sol.reals.val[i]))/pi)
+        end
+    end
+end
+
+@cast function hamburger(input_data::String, input_moment::String, input_param::String, output_data::String)
+    f = open(input_data, "r")
+    N_imag = parse(Int64,readline(f))
+    wn = Array{Complex{BigFloat}}(undef, N_imag)
+    gw = Array{Complex{BigFloat}}(undef, N_imag)
+
+    for i in 1:N_imag
+        data = parse.(Float64,split(readline(f), keepempty=false))
+        wn[i] = 0.0 + data[1]*im
+        gw[i] = data[2] + data[3]*im
+    end
+    close(f)
+
+
+    f = open(input_moment, "r")
+    moments = Complex{BigFloat}.(parse.(Float64, readlines(f)))
+    close(f)
+
+    param = TOML.parsefile(input_param)
+
+    N_real::Int64     = param["basic"]["N_real"]
+    w_max::Float64    = param["basic"]["w_max"]
+    eta::Float64      = param["basic"]["eta"]
+    sum_rule::Float64 = param["basic"]["sum_rule"]
+    H_max::Int64      = param["basic"]["H_max"]
+    iter_tol::Int64   = param["basic"]["iter_tol"]
+    lambda::Float64   = param["basic"]["lambda"]
+
+    verbose::Bool      = false
+    pick_check::Bool   = true
+    optimization::Bool = true
+    mesh::Symbol       = :linear
+
+    if haskey(param, "option")
+        if haskey(param["option"], "verbose")
+            verbose = param["option"]["verbose"]
+        end
+        if haskey(param["option"], "pick_check")
+            pick_check = param["option"]["pick_check"]
+        end
+        if haskey(param["option"], "optimization")
+            optimization = param["option"]["optimization"]
+        end
+        if haskey(param["option"], "mesh")
+            mesh = param["option"]["mesh"]
+        end
+    end
+
+    sol = HamburgerNevanlinnaSolver(moments, wn, gw, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, verbose=verbose, pick_check = pick_check, optimization = optimization, mesh = mesh)
+    if optimization 
+        solve!(sol)
+    end
+
+    open(output_data, "w") do f
+        for i in 1:N_real
+            println(f, Float64(real(sol.nev_st.reals.freq[i])), "\t", Float64(imag(sol.val[i]))/pi)
+        end
+    end
+end
+
+@main
 end

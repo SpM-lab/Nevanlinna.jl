@@ -38,3 +38,5 @@ function integrate_squared_second_deriv(x::AbstractVector, y::AbstractVector)
     x_sd = view(x, 2:(N-1))
     return integrate(x_sd, abs.(sd) .^ 2)
 end
+
+

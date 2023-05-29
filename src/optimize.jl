@@ -41,7 +41,7 @@ function hardy_optim!(
                    Optim.Options(iterations = iter_tol,
                                  show_trace = sol.verbose))
     
-    if  !(Optim.converged(res))
+    if  !(Optim.converged(res)) && sol.verbose
         println("Faild to optimize!")
     end
     
@@ -105,7 +105,7 @@ function hardy_optim!(
                    Optim.Options(iterations = iter_tol,
                                  show_trace = sol.verbose))
     
-    if  !(Optim.converged(res))
+    if  !(Optim.converged(res)) && sol.verbose
         println("Faild to optimize!")
     end
 

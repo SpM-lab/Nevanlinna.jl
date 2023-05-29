@@ -19,3 +19,6 @@ git clone https://github.com/nogaki/Nevanlinna.jl.git
 julia -e "import Pkg; Pkg.add(path=\"Nevanlinna.jl\")"
 ```
 This is *not* recommended, as you will get the unstable development version and no updates.
+
+#To install CLI
+julia --project deps/build.jl install

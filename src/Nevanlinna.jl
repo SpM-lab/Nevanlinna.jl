@@ -1,7 +1,5 @@
 module Nevanlinna                                                                                                   
 using LinearAlgebra
-#using FFTW
-using SparseIR
 using Optim
 using Zygote
 using Comonicon

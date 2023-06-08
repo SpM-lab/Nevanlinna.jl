@@ -11,7 +11,19 @@ The package can be installed with the Julia package manager. From the Julia REPL
 pkg> add Nevanlinna
 ```
 
-### Manual installation from source
+This will install a Command Line Interface (CLI) script, `nevanlinna`, into `~/.julia/bin`.
+You can add this directory to your PATH in a bash shell by adding the following line into `~/.bashrc`:
+
+```bash
+export PATH="$HOME/.julia/bin:$PATH"
+```
+
+
+### How to run examples
+
+TO BE WRITTEN
+
+### Manual installation from source (advanced)
 
 You should almost never have to do this, but it is possible to install Nevanlinna.jl from source as follows:
 ```sh

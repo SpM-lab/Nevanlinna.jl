@@ -34,10 +34,18 @@ function calc_opt_N_imag(N      ::Int64,
     end
 
     if verbose
-        println("N_imag is setted as $(k-1)")
+        if !(success)
+            println("N_imag is setted as $(k-1)")
+        else
+            println("N_imag is setted as $(N)")
+        end
     end
 
-    return (k-1)
+    if !(success)
+        return (k-1)
+    else
+        return (N)
+    end
 end
 
 

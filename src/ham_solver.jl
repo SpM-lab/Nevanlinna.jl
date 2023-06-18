@@ -34,6 +34,7 @@ function HamburgerNevanlinnaSolver(
                     verbose     ::Bool=false,
                     pick_check  ::Bool=true,
                     optimization::Bool=true,
+                    ini_iter_tol::Int64=500,
                     mesh        ::Symbol=:linear
                     )::HamburgerNevanlinnaSolver{T} where {T<:Real}
 
@@ -68,7 +69,7 @@ function HamburgerNevanlinnaSolver(
         embed_nev_val[i] = (- nev_val * P - G) / (nev_val * Q + D)
     end
 
-    nev_sol = NevanlinnaSolver(wn, -embed_nev_val, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, verbose=true, ham_option=true)
+    nev_sol = NevanlinnaSolver(wn, -embed_nev_val, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, ini_iter_tol=ini_iter_tol, verbose=true, ham_option=true)
 
     mat_real_omega  = Array{Complex{T}}(undef, N_real, n2+1)
     for i in 1:N_real, j in 1:(n2 + 1)
@@ -91,7 +92,9 @@ end
 function calc_H_min(sol::HamburgerNevanlinnaSolver{T})::Nothing where {T<:Real}
     H_bound::Int64 = 50
     for iH in 1:H_bound
-        println("H=$(iH)")
+        if sol.verbose
+            println("H=$(iH)")
+        end
         zero_ab_coeff = zeros(ComplexF64, 2*iH)
 
         causality, optim = hardy_optim!(sol, iH, zero_ab_coeff, iter_tol=500)
@@ -117,7 +120,9 @@ function solve!(sol::HamburgerNevanlinnaSolver{T})::Nothing where {T<:Real}
     ab_coeff  = copy(sol.nev_st.ab_coeff)
     
     for iH in sol.nev_st.H_min:sol.nev_st.H_max
-        println("H=$(iH)")
+        if sol.verbose
+            println("H=$(iH)")
+        end
         causality, optim = hardy_optim!(sol, iH, ab_coeff)
 
         #break if we face instability of optimization

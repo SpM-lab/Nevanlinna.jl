@@ -1,3 +1,3 @@
 #!/bin/bash
 
- ~/.julia/bin/nevanlinna hamburger inputfile.txt moment.txt config.toml opt_outputfile.txt
+ ~/.julia/bin/nevanlinna hamburger inputfile.dat moment.dat config.toml outputfile.dat

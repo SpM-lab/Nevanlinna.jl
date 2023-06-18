@@ -18,6 +18,10 @@ You can add this directory to your PATH in a bash shell by adding the following 
 export PATH="$HOME/.julia/bin:$PATH"
 ```
 
+This command needs input parameter TOML file.
+These files can be downloaded from [here](https://github.com/SpM-lab/Nevanlinna.jl/blob/comonicon/comonicon/bare/config.toml).
+TO DO:the link must be modified after marged to main branch!
+
 
 ### How to run examples
 
@@ -32,7 +36,7 @@ julia -e "import Pkg; Pkg.add(path=\"Nevanlinna.jl\")"
 ```
 This is *not* recommended, as you will get the unstable development version and no updates.
 
-#To install CLI
+###To install CLI
 ```
 julia --project deps/build.jl install
 ```

@@ -60,8 +60,10 @@ function check_causality(hardy_matrix::Array{Complex{T},2},
         end
         causality = true
     else
-        println("max_theta=",max_theta)
-        println("hardy optimization was failure.")
+        if verbose
+          println("max_theta=",max_theta)
+          println("hardy optimization was failure.")
+        end
         causality = false
     end
     return causality

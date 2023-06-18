@@ -7,7 +7,7 @@
   iter_tol = 1000
   lambda = 1e-4
 [option]
-#  verbose = false
+  verbose = true
 #  pick_check = true
 #  optimization = false
 #  mesh = :linear

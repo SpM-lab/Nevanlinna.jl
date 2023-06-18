@@ -1,5 +1,6 @@
 module Nevanlinna                                                                                                   
 using LinearAlgebra
+using GenericLinearAlgebra
 using Optim
 using Zygote
 using Comonicon
@@ -36,16 +37,10 @@ include("optimize.jl")
 
 @cast function bare(input_data::String, input_param::String, output_data::String)
     f= open(input_data, "r")
-    N_imag = parse(Int64,readline(f))
-    wn = Array{Complex{BigFloat}}(undef, N_imag)
-    gw = Array{Complex{BigFloat}}(undef, N_imag)
-
-    for i in 1:N_imag
-        data = parse.(Float64,split(readline(f), keepempty=false))
-        wn[i] = 0.0 + data[1]*im
-        gw[i] = data[2] + data[3]*im
-    end
+    data = split.(readlines(f),'\t')
     close(f)
+    wn = im.*parse.(BigFloat, collect(Iterators.flatten(data))[1:3:end])
+    gw = parse.(BigFloat,collect(Iterators.flatten(data))[2:3:end]) .+ im.*parse.(BigFloat,collect(Iterators.flatten(data))[3:3:end])
 
     param = TOML.parsefile(input_param)
 
@@ -90,18 +85,11 @@ include("optimize.jl")
 end
 
 @cast function hamburger(input_data::String, input_moment::String, input_param::String, output_data::String)
-    f = open(input_data, "r")
-    N_imag = parse(Int64,readline(f))
-    wn = Array{Complex{BigFloat}}(undef, N_imag)
-    gw = Array{Complex{BigFloat}}(undef, N_imag)
-
-    for i in 1:N_imag
-        data = parse.(Float64,split(readline(f), keepempty=false))
-        wn[i] = 0.0 + data[1]*im
-        gw[i] = data[2] + data[3]*im
-    end
+    f= open(input_data, "r")
+    data = split.(readlines(f),'\t')
     close(f)
-
+    wn = im.*parse.(BigFloat, collect(Iterators.flatten(data))[1:3:end])
+    gw = parse.(BigFloat,collect(Iterators.flatten(data))[2:3:end]) .+ im.*parse.(BigFloat,collect(Iterators.flatten(data))[3:3:end])
 
     f = open(input_moment, "r")
     moments = Complex{BigFloat}.(parse.(Float64, readlines(f)))

@@ -50,7 +50,7 @@ function HamburgerNevanlinnaSolver(
         hankel[i,j] = moments[i+j-1]
     end
 
-    n1, n2, isDegenerate, isPSD, isSingular, isProper = existence_condition(hankel)
+    n1, n2, isDegenerate, isPSD, isSingular, isProper = existence_condition(hankel, verbose)
 
     p, q, gamma, delta = coefficient_lists(moments, hankel, n1, n2, isDegenerate, isPSD, isSingular, isProper)
 
@@ -69,7 +69,7 @@ function HamburgerNevanlinnaSolver(
         embed_nev_val[i] = (- nev_val * P - G) / (nev_val * Q + D)
     end
 
-    nev_sol = NevanlinnaSolver(wn, -embed_nev_val, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, ini_iter_tol=ini_iter_tol, verbose=true, ham_option=true)
+    nev_sol = NevanlinnaSolver(wn, -embed_nev_val, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, ini_iter_tol=ini_iter_tol, verbose=verbose, ham_option=true)
 
     mat_real_omega  = Array{Complex{T}}(undef, N_real, n2+1)
     for i in 1:N_real, j in 1:(n2 + 1)
@@ -141,7 +141,8 @@ function solve!(sol::HamburgerNevanlinnaSolver{T})::Nothing where {T<:Real}
 end
 
 function existence_condition(
-                hankel::Matrix{Complex{T}}
+                hankel::Matrix{Complex{T}},
+                verbose::Bool
                 )::Tuple{Int64, Int64, Bool, Bool, Bool, Bool} where {T<:Real}
 
     N = size(hankel,1)
@@ -149,7 +150,9 @@ function existence_condition(
     #compute rank
     n1::Int64 = rank(hankel)
     n2::Int64 = 2*N - n1
-    println("Rank of Hankel matrix:$(n1)")
+    if verbose
+        println("Rank of Hankel matrix:$(n1)")
+    end
 
     if n1 == 0
         error("Meeting degenerate 0 matrix.")
@@ -160,7 +163,9 @@ function existence_condition(
         error("Degenerate")
         isDegenerate = true
     else
-    println("Non-degenerate")
+    if verbose
+        println("Non-degenerate")
+    end
     isDegenerate = false
     end
 
@@ -168,7 +173,9 @@ function existence_condition(
     PSD_test = hankel .+ T(1e-250).*Matrix{Complex{T}}(I, N, N)
     isPSD = issuccess(cholesky(PSD_test,check = false))
     if isPSD
-        println("Postive semi-definite")
+        if verbose
+            println("Postive semi-definite")
+        end
     else
         error("Meeting non positive semi-definite matrix in moment calculation.")
     end
@@ -176,12 +183,18 @@ function existence_condition(
     #check singularity
     if n1 < N
         isSingular = true
-        println("Singular")
+        if verbose
+            println("Singular")
+        end
     else
         isSingular = false
-        println("Non-singular")
+        if verbose
+            println("Non-singular")
+        end
         if isPSD
-            println("Positive definite")
+            if verbose
+                println("Positive definite")
+            end
         end
     end
 
@@ -192,7 +205,9 @@ function existence_condition(
         error("Non-proper")
     else
         isProper = true
-        println("Proper")
+        if verbose
+            println("Proper")
+        end
     end
 
     return n1, n2, isDegenerate, isPSD, isSingular, isProper

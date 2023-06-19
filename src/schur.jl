@@ -48,4 +48,3 @@ function calc_opt_N_imag(N      ::Int64,
     end
 end
 
-

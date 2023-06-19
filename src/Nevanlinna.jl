@@ -69,7 +69,7 @@ include("optimize.jl")
             optimization = param["option"]["optimization"]
         end
         if haskey(param["option"], "ini_iter_tol")
-            optimization = param["option"]["ini_iter_tol"]
+            ini_iter_tol = param["option"]["ini_iter_tol"]
         end
         if haskey(param["option"], "mesh")
             mesh = param["option"]["mesh"]
@@ -112,6 +112,7 @@ end
     verbose::Bool      = false
     pick_check::Bool   = true
     optimization::Bool = true
+    ini_iter_tol::Int64 = 500
     mesh::Symbol       = :linear
 
     if haskey(param, "option")
@@ -125,7 +126,7 @@ end
             optimization = param["option"]["optimization"]
         end
         if haskey(param["option"], "ini_iter_tol")
-            optimization = param["option"]["ini_iter_tol"]
+            ini_iter_tol = param["option"]["ini_iter_tol"]
         end
         if haskey(param["option"], "mesh")
             mesh = param["option"]["mesh"]

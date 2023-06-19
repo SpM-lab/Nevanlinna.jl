@@ -10,5 +10,5 @@
 #  verbose = false
 #  pick_check = true
 #  optimization = false
-#  ini_iter_tol = 500
+  ini_iter_tol = 500
 #  mesh = :linear

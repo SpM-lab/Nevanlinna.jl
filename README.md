@@ -25,7 +25,24 @@ TO DO:the link must be modified after marged to main branch!
 
 ### How to run examples
 
-TO BE WRITTEN
+The notebooks in which reproduce examples in our paper are located in notebooks derectory.
+These examples includes:  
+- $\delta$-function
+- Gaussian
+- Lorentzian
+- Two peak
+- Kondo resonance
+- tractable Hubbard gap
+- challenging Hubbard gap
+
+- compare 64-bit and 128-bit
+- Hamburger moment problem
+
+To run our code, please ensure that the following packages is already installed to Julia
+- Nevanlinna
+- Plots
+- LaTexStrings
+- SparseIR
 
 ### Manual installation from source (advanced)
 

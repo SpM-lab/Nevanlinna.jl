@@ -55,6 +55,7 @@ include("optimize.jl")
     verbose::Bool      = false
     pick_check::Bool   = true
     optimization::Bool = true
+    ini_iter_tol::Int64 = 500
     mesh::Symbol       = :linear
 
     if haskey(param, "option")
@@ -67,12 +68,15 @@ include("optimize.jl")
         if haskey(param["option"], "optimization")
             optimization = param["option"]["optimization"]
         end
+        if haskey(param["option"], "ini_iter_tol")
+            optimization = param["option"]["ini_iter_tol"]
+        end
         if haskey(param["option"], "mesh")
             mesh = param["option"]["mesh"]
         end
     end
 
-    sol = NevanlinnaSolver(wn, gw, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, verbose=verbose, pick_check = pick_check, optimization = optimization, mesh = mesh)
+    sol = NevanlinnaSolver(wn, gw, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, verbose=verbose, pick_check = pick_check, optimization=optimization, ini_iter_tol=ini_iter_tol, mesh=mesh)
     if optimization 
         solve!(sol)
     end
@@ -120,12 +124,15 @@ end
         if haskey(param["option"], "optimization")
             optimization = param["option"]["optimization"]
         end
+        if haskey(param["option"], "ini_iter_tol")
+            optimization = param["option"]["ini_iter_tol"]
+        end
         if haskey(param["option"], "mesh")
             mesh = param["option"]["mesh"]
         end
     end
 
-    sol = HamburgerNevanlinnaSolver(moments, wn, gw, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, verbose=verbose, pick_check = pick_check, optimization = optimization, mesh = mesh)
+    sol = HamburgerNevanlinnaSolver(moments, wn, gw, N_real, w_max, eta, sum_rule, H_max, iter_tol, lambda, verbose=verbose, pick_check = pick_check, optimization = optimization, ini_iter_tol=ini_iter_tol, mesh = mesh)
     if optimization 
         solve!(sol)
     end

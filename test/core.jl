@@ -43,11 +43,8 @@
     ab_coeff = zeros(ComplexF64, 2*H_min)
     hardy_matrix = Nevanlinna.calc_hardy_matrix(raw_reals, H_min)
 
-#    hardy_matrix = Nevanlinna.calc_hardy_matrix(raw_reals, H_max)
-
-    sol = NevanlinnaSolver(imaginary, raw_reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, false)
+    sol = NevanlinnaSolver(imaginary, raw_reals, phis, abcd, H_max, H_min, H_min, ab_coeff, hardy_matrix, iter_tol, lambda, 1, false)
     Nevanlinna.evaluation!(sol)
-#    Nevanlinna.evaluation!(raw_reals, abcd, H_max, ab_coeff, hardy_matrix)
 
     spec = imag.(sol.reals.val)/pi
 

@@ -1,7 +1,7 @@
 name = "Nevanlinna"
 uuid = "0b21cfa8-e591-48a4-a07b-a9d20be7c264"
 authors = ["Kosuke Nogaki <nogaki.kosuke.83v@st.kyoto-u.ac.jp>, Jiani Fei <jianif@stanford.edu>, Emanuel Gull <egull@umich.edu>, Hiroshi Shinaoka <h.shinaoka@gmail.com>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 Comonicon = "863f3e99-da2a-4334-8734-de3dacbe5542"

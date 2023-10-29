@@ -13,12 +13,13 @@ TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
-julia = "1.6"
+Comonicon = "1.0.6"
+GenericLinearAlgebra = "0.3.1"
 MultiFloats = "^1.0.0"
 Optim = "^1.7.0"
+TOML = "1"
 Zygote = "^0.6.0"
-GenericLinearAlgebra = "0.3.1"
-Comonicon = "1.0.6"
+julia = "1.6"
 
 [extras]
 SparseIR = "4fe2279e-80f0-4adb-8463-ee114ff56b7d"

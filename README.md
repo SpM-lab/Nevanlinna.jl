@@ -1,5 +1,9 @@
 # Nevanlinna
 
+> Part of the [SpM-lab](https://spm-lab.github.io/) tools for imaginary-time Green's functions and analytic continuation.
+> Related: the [sparse-ir ecosystem](https://spm-lab.github.io/sparse-ir-doc/) (IR/DLR bases, sparse sampling) and the other
+> [analytic continuation tools](https://spm-lab.github.io/#analytic-continuation).
+
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://github.com/SpM-lab/Nevanlinna.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://github.com/SpM-lab/Nevanlinna.jl/dev)
 [![Build Status](https://github.com/SpM-lab/Nevanlinna.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/SpM-lab/Nevanlinna.jl/actions/workflows/CI.yml?query=branch%3Amain)
